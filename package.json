@@ -1,0 +1,17 @@
+{
+  "name": "s4d-utilities",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm i && node ."
+  },
+  "dependencies": {
+    "@frostzzone/discord-sync-commands": "^0.3.0",
+    "@haileybot/captcha-generator": "^1.7.0",
+    "axios": "^1.7.9",
+    "discord-inviter-tracker": "^1.0.3",
+    "discord.js": "^13.6.0",
+    "easy-json-database": "^1.5.1",
+    "os-utils": "0.0.14"
+  }
+}
