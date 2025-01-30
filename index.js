@@ -23,7 +23,6 @@
     let s4d = {
         Discord,
         fire: null,
-        joiningMember: null,
         reply: null,
         player: null,
         manager: null,
@@ -76,7 +75,7 @@
     }
 
     // blockly code
-    var argument, sentryid, rating, command, user, prompt2, j, user_tier, user_rpoints, badges, sentryhandler, arguments2, total_reviews, vhelper, reviews_rating, bio, ratingoverall, adm_ds, mang_ds, maro_ds, version, host, AdminRoleID, RolesServer, ModRoleID, ban_ds;
+    var argument, rating, command, user, prompt2, j, user_tier, user_rpoints, badges, sentryhandler, arguments2, total_reviews, vhelper, reviews_rating, bio, ratingoverall, adm_ds, mang_ds, maro_ds, version, host, AdminRoleID, RolesServer, ModRoleID, ban_ds;
 
     function colourRandom() {
         var num = Math.floor(Math.random() * Math.pow(2, 24));
@@ -91,53 +90,57 @@
     }
 
     function sentry_handler(sentry_command, timestamp, error) {
-        sentryid = (S4D_makeid(16));
-        sentry.set(String(sentryid), (JSON.stringify({
-            "command_used": sentry_command,
-            "unix": timestamp,
-            "error": error,
-        })));
+        let sentryid = S4D_makeid(16);
+        sentry.set(sentryid, JSON.stringify({
+            command_used: sentry_command,
+            unix: timestamp,
+            error: error
+        }));
         return sentryid;
     }
 
 
     await s4d.client.login(process.env.token).catch((e) => {
-        const tokenInvalid = true;
-        const tokenError = e;
-        if (e.toString().toLowerCase().includes("token")) {
-            throw new Error("An invalid bot token was provided!")
-        } else {
-            throw new Error("Privileged Gateway Intents are not enabled! Please go to https://discord.com/developers and turn on all of them.")
-        }
+        console.log(e);
     });
 
-    s4d.client.on('guildMemberAdd', async (param1) => {
-        s4d.joiningMember = param1;
-        if (((s4d.joiningMember.guild).id) == '866689038731313193') {
-            var welcome = new Discord.MessageEmbed();
-            welcome.setColor('#ffffff');
-            welcome.setTitle(String((['Welcome ', (s4d.joiningMember.user).username, ' to Scratch For Discord World!'].join(''))))
-            welcome.setURL(String());
-            welcome.setDescription(String((['**Welcome to the best Scratch For Discord Server! Get started right away:**', '\n', '* Read the rules: <#866689216033587258>', '\n', '* Get your roles and channels: <id:browse>', '\n', '* Come chat with us! <#1025976392745242666>', '\n', '\n', '**Need help?**', '\n', '* Our helpers are always ready for you! Ask your question in <#1025976404187295765>', '\n', '***Have a GREAT stay!***'].join(''))));
-            welcome.setThumbnail(String('https://images-ext-1.discordapp.net/external/C1AgTzLEmxTfL4oiR1EWAwv4ZQ_mduzqU17FoBr1xdk/%3Fsize%3D4096/https/cdn.discordapp.com/icons/866689038731313193/46a22b072c98ea952a46437a1afcbe0f.png'));
+    s4d.client.on('guildMemberAdd', async(joiningMember) => {
+        if (joiningMember.guild.id === '866689038731313193') {
+            let welcome = new Discord.MessageEmbed()
+                .setColor('#ffffff')
+                .setTitle(`Welcome ${joiningMember.user.username} to Scratch For Discord World!`)
+                .setThumbnail('https://cdn.discordapp.com/icons/866689038731313193/50da05402eaabd4619da8dafd5553601.png')
+                .setDescription(`**Welcome to the best Scratch For Discord Server! Get started right away:**
+* Read the rules: <#866689216033587258>
+* Get your roles and channels: <id:browse>
+* Come chat with us! <#1025976392745242666>
 
-            (s4d.client.guilds.cache.get('866689038731313193')).channels.cache.get('1025976390564188170').send({
+**Need help?**
+* Our helpers are always ready for you! Ask your question in <#1025976404187295765>
+***Have a GREAT stay!***`);
+
+            s4d.client.guilds.cache.get('866689038731313193').channels.cache.get('1025976390564188170').send({
                 embeds: [welcome]
             });
-            var welcome_dm = new Discord.MessageEmbed();
-            welcome_dm.setColor('#ffffff');
-            welcome_dm.setTitle(String((['Howdy ', (s4d.joiningMember.user).username, ', welcome to Scratch For Discord World!'].join(''))))
-            welcome_dm.setURL(String());
-            welcome_dm.setDescription(String((['**Welcome to the best Scratch For Discord Server! We\'re glad to have you join! Get started right away:**', '\n', '* Read the rules: <#866689216033587258>', '\n', '* Get your roles and channels: [here](https://discord.com/channels/866689038731313193/customize-community)', '\n', '* Have a chat with us! <#1025976392745242666>', '\n', '\n', '**Need help?**', '\n', '* Our helpers are always ready for you! Ask your question in <#1025976404187295765> and ping the Helper Available role.', '\n', '***Have a GREAT stay!***'].join(''))));
+            let welcome_dm = new Discord.MessageEmbed()
+                .setColor('#ffffff')
+                .setTitle(`Howdy ${joiningMember.user.username} welcome to Scratch For Discord World!`)
+                .setDescription(`**Welcome to the best Scratch For Discord Server! We're glad to have you join! Get started right away:**
+* Read the rules: <#866689216033587258>
+* Get your roles and channels: [here](https://discord.com/channels/866689038731313193/customize-community)
+* Have a chat with us! <#1025976392745242666>
 
-            (s4d.joiningMember).send({
+**Need help?**
+* Our helpers are always ready for you! Ask your question in <#1025976404187295765> and ping the Helper Available role.
+***Have a GREAT stay!***`);
+
+            joiningMember.send({
                 embeds: [welcome_dm]
             });
         }
-        s4d.joiningMember = null
     });
 
-    RolesServer = (s4d.client.guilds.cache.get('866689038731313193'));
+    RolesServer = s4d.client.guilds.cache.get('866689038731313193');
 
     ModRoleID = '1025976296532095006';
 
@@ -159,15 +162,14 @@
         console.log('[INFO] Bot connected to Discord');
 
         while (s4d.client && s4d.client.token) {
-            await delay(50);
             s4d.client.user.setPresence({
                 status: "online",
                 activities: [{
-                    name: (['s4d!help, ', s4d.client.ws.ping, ' MS'].join('')),
+                    name: `s4d!help, ${s4d.client.ws.ping} MS`,
                     type: "WATCHING"
                 }]
             });
-            await delay(Number(30) * 1000);
+            await delay(30 * 1000);
             s4d.client.user.setPresence({
                 status: "online",
                 activities: [{
@@ -175,23 +177,8 @@
                     type: "PLAYING"
                 }]
             });
-            await delay(Number(30) * 1000);
-
-            if (false) {
-                console.log('ran')
-            }
+            await delay(30 * 1000);
         }
-
-        while (s4d.client && s4d.client.token) {
-            await delay(50);
-            console.log('Yes');
-            await delay(Number(6000) * 1000);
-
-            if (false) {
-                console.log('ran')
-            }
-        }
-
     });
 
     const profiles = new Database('./profiles.json')
@@ -201,27 +188,27 @@
         /*
         anti promote
         */
-        if ((String(((s4dmessage.content).toLowerCase())).includes(String('discord.gg'))) || (String(((s4dmessage.content).toLowerCase())).includes(String('discord.com/invite/')))) {
-            if (!(((s4dmessage.channel).id) == '1025976401440022558')) {
-                if (!((s4dmessage.member)._roles.includes(((s4dmessage.guild).roles.cache.get('1025976307143671869')).id))) {
-                    var infrinv = new Discord.MessageEmbed();
-                    infrinv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' Got an infraction from automod'].join(''))))
-                    infrinv.setURL(String());
-                    infrinv.setDescription(String((['Reason: Posting Discord invites', '\n', 'Message: ⚠ ||', s4dmessage.content, '||'].join(''))));
-                    infrinv.setColor('#ff6600');
+        if (s4dmessage.content.toLowerCase().includes('discord.gg') || s4dmessage.content.toLowerCase().includes('discord.com/invite/')) {
+            if (s4dmessage.channel.id !== '1025976401440022558') {
+                if (!s4dmessage.member._roles.includes('1025976307143671869')) {
+                    let infrinv = new Discord.MessageEmbed()
+                        .setTitle(`${s4dmessage.author.username} Got an infraction from automod`)
+                        .setDescription(`Reason: Posting Discord invites
+Message: ⚠ ||${s4dmessage.content}||`)
+                        .setColor('#ff6600');
 
                     s4dmessage.delete();
-                    moderation.add(String(('warnings-' + String(s4dmessage.author.id))), parseInt(1));
+                    moderation.add(`warnings-${s4dmessage.author.id}`, 1);
                     s4d.client.channels.cache.get('1029489074970562560').send({
                         embeds: [infrinv]
                     });
-                    if (moderation.get(String(('warnings-' + String(s4dmessage.author.id)))) == 3) {
+                    if (moderation.get(`warnings-${s4dmessage.author.id}`) == 3) {
                         s4dmessage.member.timeout((3600 * 1000), 'Warning threshold of 3 has been reached')
-                        var to1inv = new Discord.MessageEmbed();
-                        to1inv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' has been timed out for 1 hour'].join(''))))
-                        to1inv.setURL(String());
-                        to1inv.setDescription(String((['Reason: Posting Discord invites & Getting 3 infractions', '\n', 'Message: ⚠ ||', s4dmessage.content, '||'].join(''))));
-                        to1inv.setColor('#ff0000');
+                        let to1inv = new Discord.MessageEmbed()
+                            .setTitle(`${s4dmessage.author.username} has been timed out for 1 hour`)
+                            .setDescription(`Reason: Posting Discord invites & Getting 3 infractions
+Message: ⚠ ||${s4dmessage.content}||`)
+                            .setColor('#ff0000');
 
                         s4dmessage.channel.send({
                             embeds: [to1inv]
@@ -229,13 +216,12 @@
                         s4d.client.channels.cache.get('1029489074970562560').send({
                             embeds: [to1inv]
                         });
-                    } else if (moderation.get(String(('warnings-' + String(s4dmessage.author.id)))) == 5) {
+                    } else if (moderation.get(`warnings-${s4dmessage.author.id}`) == 5) {
                         s4dmessage.member.timeout((10800 * 1000), 'Warning threshold of 5 has been reached')
-                        var to3inv = new Discord.MessageEmbed();
-                        to3inv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' has been timed out for 3 hours'].join(''))))
-                        to3inv.setURL(String());
-                        to3inv.setDescription(String('Reason: Posting Discord invites & Getting 5 infractions'));
-                        to3inv.setColor('#ff0000');
+                        let to3inv = new Discord.MessageEmbed()
+                            .setTitle(`${s4dmessage.author.username} has been timed out for 3 hours`)
+                            .setDescription(`Reason: Posting Discord invites & Getting 5 infractions`)
+                            .setColor('#ff0000');
 
                         s4dmessage.channel.send({
                             embeds: [to3inv]
@@ -243,25 +229,24 @@
                         s4d.client.channels.cache.get('1029489074970562560').send({
                             embeds: [to3inv]
                         });
-                    } else if (moderation.get(String(('warnings-' + String(s4dmessage.author.id)))) == 8) {
-                        (s4dmessage.member).send({
+                    } else if (moderation.get(`warnings-${s4dmessage.author.id}`) == 8) {
+                        s4dmessage.member.send({
                             embeds: [{
-                                color: String('#ff0000'),
-                                title: String('You have been kicked from Scratch For Discord World!'),
-                                description: String(`Reason: (automod) Warning threshold of 8 has been reached
-              **Extra Notes:**
-              Link to join back: https://discord.gg/N4NUxKS4Ja`),
+                                color: '#ff0000',
+                                title: 'You have been kicked from Scratch For Discord World!',
+                                description: (`Reason: (automod) Warning threshold of 8 has been reached
+**Extra Notes:**
+Link to join back: https://discord.gg/N4NUxKS4Ja`),
                             }]
                         });
-                        await delay(Number(1) * 1000);
-                        (s4dmessage.member).kick({
+                        await delay(1000);
+                        s4dmessage.member.kick({
                             reason: 'Warning threshold of 8 has been reached'
                         });
-                        var kickinv = new Discord.MessageEmbed();
-                        kickinv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' has been kicked'].join(''))))
-                        kickinv.setURL(String());
-                        kickinv.setDescription(String('Reason: Posting Discord invites & Getting 8 infractions'));
-                        kickinv.setColor('#ff0000');
+                        let kickinv = new Discord.MessageEmbed()
+                            .setTitle(`${s4dmessage.author.username} has been kicked`)
+                            .setDescription('Reason: Posting Discord invites & Getting 8 infractions')
+                            .setColor('#ff0000');
 
                         s4dmessage.channel.send({
                             embeds: [kickinv]
@@ -269,23 +254,22 @@
                         s4d.client.channels.cache.get('1029489074970562560').send({
                             embeds: [kickinv]
                         });
-                    } else if (moderation.get(String(('warnings-' + String(s4dmessage.author.id)))) == 12) {
-                        (s4dmessage.member).send({
+                    } else if (moderation.get(`warnings-${s4dmessage.author.id}`) == 12) {
+                        s4dmessage.member.send({
                             embeds: [{
-                                color: String('#ff0000'),
-                                title: String('You have been banned from Scratch For Discord World!'),
-                                description: String(`Reason: (automod) Warning threshold of 12 has been reached
-              **Extra Notes:**
-              Appeal Form: https://dyno.gg/form/71a7abdd`),
+                                color: '#ff0000',
+                                title: 'You have been banned from Scratch For Discord World!',
+                                description: `Reason: (automod) Warning threshold of 12 has been reached
+**Extra Notes:**
+Appeal Form: https://dyno.gg/form/71a7abdd`,
                             }]
                         });
-                        var baninv = new Discord.MessageEmbed();
-                        baninv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' has been banned'].join(''))))
-                        baninv.setURL(String());
-                        baninv.setDescription(String('Reason: Posting Discord invites & Getting 12 infractions'));
-                        baninv.setColor('#ff0000');
+                        let baninv = new Discord.MessageEmbed()
+                            .setTitle(`${s4dmessage.author.username} has been banned`)
+                            .setDescription('Reason: Posting Discord invites & Getting 12 infractions')
+                            .setColor('#ff0000');
 
-                        (s4dmessage.member).ban({
+                        s4dmessage.member.ban({
                             reason: 'Warning threshold of 12 has been reached'
                         });
                         s4dmessage.channel.send({
@@ -295,11 +279,10 @@
                             embeds: [baninv]
                         });
                     } else {
-                        var warninv = new Discord.MessageEmbed();
-                        warninv.setTitle(String(([s4dmessage.author.username, '#', s4dmessage.author.discriminator, ' has been warned'].join(''))))
-                        warninv.setURL(String());
-                        warninv.setDescription(String('Reason: Posting Discord invites'));
-                        warninv.setColor('#ff9900');
+                        let warninv = new Discord.MessageEmbed()
+                            .setTitle(`${s4dmessage.author.username} has been warned`)
+                            .setDescription('Reason: Posting Discord invites')
+                            .setColor('#ff9900');
 
                         s4dmessage.channel.send({
                             embeds: [warninv]
@@ -312,52 +295,52 @@
         /*
         content filter (fsh api in future :trol:)
         */
-        var j_list = 'kys,nigg,cunt,nazi,faggot'.split(',');
+        var j_list = 'kys,nigg,cunt,fagg'.split(',');
         for (var j_index in j_list) {
             j = j_list[j_index];
-            if (String(((s4dmessage.content).toLowerCase())).includes(String(j))) {
-                if ((s4dmessage.member).bot) {
+            if (s4dmessage.content.toLowerCase().includes(j)) {
+                if (s4dmessage.member.bot) {
                     s4dmessage.delete();
                     s4dmessage.member.timeout((86400 * 1000), 'Using Slurs [Pending verification]')
                     s4dmessage.channel.send({
                         embeds: [{
-                            color: String('#ff0000'),
-                            title: String(String(s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: String(`Reason: Using slurs.
-            The owner has been notified and the bot may be removed.`),
+                            color: ('#ff0000'),
+                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
+                            description: (`Reason: Using slurs.
+The owner has been notified and the bot may be removed.`),
                         }]
                     });
-                    (s4d.client.users.cache.get(String('767102460673916958'))).send({
+                    (s4d.client.users.cache.get('767102460673916958')).send({
                         embeds: [{
-                            color: String('#ff0000'),
-                            title: String(String(s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: String(`Reason: Using slurs.
-            Please review the situation.`),
+                            color: ('#ff0000'),
+                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
+                            description: (`Reason: Using slurs.
+Please review the situation.`),
                         }]
                     });
                     s4d.client.channels.cache.find((channel) => channel.name === '1029489074970562560').send({
                         embeds: [{
-                            color: String('#ff0000'),
-                            title: String(String(s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: String(`Reason: Using slurs.
-            The owner has been notified and the bot may be removed.`),
+                            color: ('#ff0000'),
+                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
+                            description: (`Reason: Using slurs.
+The owner has been notified and the bot may be removed.`),
                         }]
                     });
                 } else {
                     s4dmessage.member.timeout((86400 * 1000), 'Using Slurs')
-                        (s4d.client.users.cache.get(String('767102460673916958'))).send({
+                        (s4d.client.users.cache.get(('767102460673916958'))).send({
                             embeds: [{
-                                color: String('#ff0000'),
-                                title: String(String(s4dmessage.author.tag) + '  has been timed out for 1 day.'),
-                                description: String(`Reason: Using slurs.
-            Please review the situation.`),
+                                color: ('#ff0000'),
+                                title: ((s4dmessage.author.tag) + '  has been timed out for 1 day.'),
+                                description: (`Reason: Using slurs.
+Please review the situation.`),
                             }]
                         });
                     (s4dmessage.member).send({
                         embeds: [{
-                            color: String('#ff0000'),
-                            title: String('You have been timed out in Scratch For Discord World!'),
-                            description: String('Reason: Using slurs.'),
+                            color: ('#ff0000'),
+                            title: ('You have been timed out in Scratch For Discord World!'),
+                            description: ('Reason: Using slurs.'),
                         }]
                     });
                 }
@@ -367,19 +350,19 @@
         /*
         review thing in support
         */
-        if (((s4dmessage.channel).type) == 'GUILD_PUBLIC_THREAD') {
-            if (((s4dmessage.channel).parent) == s4d.client.channels.cache.get('1025976404187295765')) {
+        if (s4dmessage.channel.type == 'GUILD_PUBLIC_THREAD') {
+            if (s4dmessage.channel.parent == s4d.client.channels.cache.get('1025976404187295765')) {
                 var j_list2 = 'thank,ty'.split(',');
                 for (var j_index2 in j_list2) {
                     j = j_list2[j_index2];
-                    if (String(((s4dmessage.content).toLowerCase())).includes(String(j))) {
+                    if ((s4dmessage.content.toLowerCase()).includes(j)) {
                         s4dmessage.channel.send({
                             embeds: [{
-                                color: String('#33ccff'),
-                                title: String('⭐ Had a good experience?'),
-                                description: String(`Please review the helper(s) that helped you. It would be greatly appreciated!
-    
-              **Use:** \`/review <helper> <1-5> <comment>\``),
+                                color: ('#33ccff'),
+                                title: ('⭐ Had a good experience?'),
+                                description: (`Please review the helper(s) that helped you. It would be greatly appreciated!
+
+**Use:** \`/review <helper> <1-5> <comment>\``),
                             }]
                         });
                     }
@@ -390,45 +373,40 @@
         /*
         suggestions channel reactions + thread
         */
-        if (((s4dmessage.channel).id) == '1050461524310892676' && (s4dmessage.author.id) == '1030156986140074054') {
+        if (s4dmessage.channel.id == '1050461524310892676' && s4dmessage.author.id == '1030156986140074054') {
             s4dmessage.startThread({
                     name: 'Discussion',
                     autoArchiveDuration: 60,
                     type: 'GUILD_PUBLIC_THREAD'
                 })
-                .then(async s4dCreatedThread => {
+                .then(() => {
                     s4dmessage.react('👍');
                     s4dmessage.react('👎');
                 })
-                .catch(async s4dThreadErr => {
-                    if (String(s4dThreadErr) === 'DiscordAPIError: Guild premium subscription level too low') {
-
-                    }
-                });
-            return
+            return;
         }
 
         /*
         general channel help
         */
-        if (((s4dmessage.channel).id) == '1025976392745242666' && !((((s4dmessage.content).toLowerCase()) || '').startsWith('s4d!' || ''))) {
+        if (s4dmessage.channel.id == '1025976392745242666' && !(s4dmessage.content.toLowerCase() ?? '').startsWith('s4d!')) {
             var j_list3 = 'help,how to,how do,how can'.split(',');
             for (var j_index3 in j_list3) {
                 j = j_list3[j_index3];
-                if (String(((s4dmessage.content).toLowerCase())).includes(String(j))) {
+                if (s4dmessage.content.toLowerCase().includes(j)) {
                     s4dmessage.reply({
                         embeds: [{
-                            color: String('#ff9900'),
-                            description: String('<:thwinkies:959150928785731634> Looking for S4D Help? Please create a post in <#1025976404187295765>!'),
+                            color: ('#ff9900'),
+                            description: ('<:thwinkies:959150928785731634> Looking for S4D Help? Please create a post in <#1025976404187295765>!'),
                         }],
                         allowedMentions: {
                             repliedUser: true
                         }
                     });
-                    return
+                    return;
                 }
             }
-            return
+            return;
         }
 
         /*
@@ -436,24 +414,24 @@
         */
         arguments2 = (s4dmessage.content).split(' ');
         command = arguments2.splice(0, 1)[0];
-        if ((command || '').startsWith('s4d!' || '')) {
+        if ((command ?? '').startsWith('s4d!')) {
             command = command.slice(4, command.length);
         } else {
-            return
+            return;
         }
         switch (command) {
             case 'help':
                 s4dmessage.reply({
                     embeds: [{
-                        color: String('#ff6600'),
-                        title: String('S4D Utilities Help'),
-                        description: String(`Hello! Help has arrived!
-          Use \`s4d!cmd <command>\` to get more info about a specific command.
-    
-          s4d!review - give a review for a helper
-          s4d!suggest - suggest something for the server
-          s4d!cmd - Get more info about a command
-          s4d!ping - Get bot ping`),
+                        color: ('#ff6600'),
+                        title: ('S4D Utilities Help'),
+                        description: (`Hello! Help has arrived!
+Use \`s4d!cmd <command>\` to get more info about a specific command.
+
+s4d!review - give a review for a helper
+s4d!suggest - suggest something for the server
+s4d!cmd - Get more info about a command
+s4d!ping - Get bot ping`),
                     }],
                     allowedMentions: {
                         repliedUser: true
@@ -463,14 +441,13 @@
                 break;
             case 'info':
             case 'ping':
-
                 os.cpuUsage(async function(v) {
                     var obj = v * 100
                     s4dmessage.reply({
                         embeds: [{
-                            color: String('#ff6600'),
-                            title: String('Bot Information'),
-                            description: String(['<a:Online:1067900716296970310> **Ping:** `', s4d.client.ws.ping, ' ms`', '\n', '<:Interface:996912177422282874> **Version:** ', version, '\n', '\n', '<:cpu:877177572406997092> **CPU:** `', Math.round(Number((obj))), '%`', '\n', '<:ram:877177600185864213> **RAM:** `', [Math.round((Number((os.totalmem()))) - (Number((os.freemem())))), 'MB / ', Number((os.totalmem()))].join(''), 'MB`', '\n', '<a:Cd:868829379604648008> **OS:** `', os.platform(), '`', '\n', '<:Host:1067901030827823174> **Host:** `', host, '`'].join('')),
+                            color: ('#ff6600'),
+                            title: ('Bot Information'),
+                            description: (['<a:Online:1067900716296970310> **Ping:** `', s4d.client.ws.ping, ' ms`', '\n', '<:Interface:996912177422282874> **Version:** ', version, '\n', '\n', '<:cpu:877177572406997092> **CPU:** `', Math.round(Number((obj))), '%`', '\n', '<:ram:877177600185864213> **RAM:** `', [Math.round((Number((os.totalmem()))) - (Number((os.freemem())))), 'MB / ', Number((os.totalmem()))].join(''), 'MB`', '\n', '<a:Cd:868829379604648008> **OS:** `', os.platform(), '`', '\n', '<:Host:1067901030827823174> **Host:** `', host, '`'].join('')),
                         }],
                         allowedMentions: {
                             repliedUser: true
@@ -478,46 +455,41 @@
                     });
 
                 });
-
                 break;
             case 'ban':
             case 'b':
                 user = arguments2[0];
-                if ((s4dmessage.member)._roles.includes((RolesServer.roles.cache.get(AdminRoleID)).id)) {
+                if (s4dmessage.member._roles.includes(AdminRoleID)) {
                     if (user == null) {
                         s4dmessage.reply({
                             embeds: [{
-                                color: String('#ff9900'),
-                                title: String('Moderation | Ban'),
-                                description: String(`**Bans someone off the server.**
-              Usage: \`s4d!ban <user> <reason>\`
-              Aliasses: \`ban, b\``),
+                                color: ('#ff9900'),
+                                title: ('Moderation | Ban'),
+                                description: (`**Bans someone off the server.**
+Usage: \`s4d!ban <user> <reason>\`
+Aliasses: \`ban, b\``),
                             }],
                             allowedMentions: {
                                 repliedUser: true
                             }
                         });
                     }
-                } else if ((s4dmessage.member)._roles.includes((RolesServer.roles.cache.get(ModRoleID)).id)) {
+                } else if (s4dmessage.member._roles.includes(ModRoleID)) {
                     s4dmessage.reply({
-                        content: String('You do not have the permission to ban. Ask an admin.'),
+                        content: ('You do not have the permission to ban. Ask an admin.'),
                         allowedMentions: {
                             repliedUser: true
                         }
                     });
                 }
-
                 break;
             case 'suggest':
                 s4dmessage.channel.send({
-                    content: String('Suggest is temporary disabled.')
+                    content: ('Suggest is temporary disabled.')
                 });
-
                 break;
             case 'check':
-                s4dmessage.channel.send({
-                    content: String((s4d.client.ws.ping))
-                });
+                s4dmessage.channel.send(s4d.client.ws.ping);
                 s4dmessage.react('✅');
                 break;
             case 'admin':
@@ -540,61 +512,54 @@
                     })
                     s4dmessage.reply({
                         embeds: [{
-                            color: String('#ff0000'),
-                            title: String('Danger Scan'),
-                            description: String('Danger scan complete'),
+                            color: ('#ff0000'),
+                            title: ('Danger Scan'),
+                            description: ('Danger scan complete'),
                             fields: [{
                                     name: 'Administrator',
-                                    value: (String(adm_ds.join('\n')) + ' '),
+                                    value: ((adm_ds.join('\n')) + ' '),
                                     inline: true,
                                 },
                                 {
                                     name: 'Manage_server',
-                                    value: (String(mang_ds.join('\n')) + ' '),
+                                    value: ((mang_ds.join('\n')) + ' '),
                                     inline: true,
                                 },
                                 {
                                     name: 'Manage_roles',
-                                    value: (String(maro_ds.join('\n')) + ' '),
+                                    value: ((maro_ds.join('\n')) + ' '),
                                     inline: true,
                                 },
                                 {
                                     name: 'Ban_members',
-                                    value: (String(ban_ds.join('\n')) + ' '),
+                                    value: ((ban_ds.join('\n')) + ' '),
                                     inline: true,
-                                },
-
-                            ],
+                                }
+                            ]
                         }],
                         allowedMentions: {
                             repliedUser: true
                         }
                     });
                 }
-
                 break;
-
         };
-        if (((s4dmessage.author).id) == '767102460673916958') {
-            if (((s4dmessage.content) || '').startsWith('s4d!eval' || '')) {
+        if (s4dmessage.author.id == '767102460673916958') {
+            if (((s4dmessage.content) ?? '').startsWith('s4d!eval')) {
                 try {
-                    s4dmessage.channel.send(await (eval((String((s4dmessage.content)).replaceAll('s4d!eval', String(''))))));
-
+                    s4dmessage.channel.send(await eval(s4dmessage.content.replaceAll('s4d!eval', '')));
                 } catch (err) {
                     s4dmessage.channel.send({
-                        content: String((['Error! ```', err, '```'].join('')))
+                        content: 'Error! ```' + err + '```'
                     });
-
                 }
             }
         }
-
     });
 
     s4d.client.on('interactionCreate', async (interaction) => {
-        let member = interaction.guild.members.cache.get(interaction.member.user.id)
-        if ((interaction.commandName) == 'review') {
-            rating = (interaction.options.getInteger('rating'));
+        if (interaction.commandName == 'review') {
+            rating = interaction.options.getInteger('rating');
 
             /*
             rating scale check (1-5)
@@ -602,30 +567,30 @@
             if (!(rating >= 1 && rating <= 5)) {
                 await interaction.reply({
                     embeds: [{
-                        color: String('#ff0000'),
-                        title: String('Review'),
-                        description: String('❌ **You need to give a rating between 1 and 5.**'),
+                        color: ('#ff0000'),
+                        title: ('Review'),
+                        description: ('❌ **You need to give a rating between 1 and 5.**'),
                     }],
                     ephemeral: true,
                     components: []
                 });
-                return
+                return;
             }
 
             /*
             no self review
             */
-            if ((interaction.options.getUser('helper')) == (interaction.member)) {
+            if (interaction.options.getUser('helper') == interaction.member) {
                 await interaction.reply({
                     embeds: [{
-                        color: String('#ff0000'),
-                        title: String('Review'),
-                        description: String('❌ **You can\'t review yourself.**'),
+                        color: ('#ff0000'),
+                        title: ('Review'),
+                        description: ('❌ **You can\'t review yourself.**'),
                     }],
                     ephemeral: true,
                     components: []
                 });
-                return
+                return;
             }
 
             /*
@@ -634,31 +599,31 @@
             if ((interaction.options.getUser('helper')).bot) {
                 await interaction.reply({
                     embeds: [{
-                        color: String('#ff0000'),
-                        title: String('Review'),
-                        description: String('❌ **You can\'t review bots.**'),
+                        color: ('#ff0000'),
+                        title: ('Review'),
+                        description: ('❌ **You can\'t review bots.**'),
                     }],
                     ephemeral: true,
                     components: []
                 });
                 return
             }
-            reviews.add(String(('reviewed-' + String((interaction.member).id))), parseInt(1));
+            reviews.add('reviewed-' + interaction.member.id, 1);
 
             /*
             calculate + database nerdyness + send
             */
-            reviews.add(String(('reviews-' + String((interaction.options.getUser('helper')).id))), parseInt(1));
-            reviews.add(String(('rating-' + String((interaction.options.getUser('helper')).id))), parseInt(rating));
-            total_reviews = reviews.get(String(('reviews-' + String((interaction.options.getUser('helper')).id))));
-            reviews_rating = reviews.get(String(('rating-' + String((interaction.options.getUser('helper')).id))));
+            reviews.add('reviews-' + interaction.options.getUser('helper').id, 1);
+            reviews.add('rating-' + interaction.options.getUser('helper').id, rating);
+            total_reviews = reviews.get('reviews-' + interaction.options.getUser('helper').id);
+            reviews_rating = reviews.get('rating-' + interaction.options.getUser('helper').id);
             ratingoverall = reviews_rating / total_reviews;
             s4d.client.channels.cache.get('1037435739924861038').send({
-                content: String((interaction.options.getUser('helper'))),
+                content: interaction.options.getUser('helper'),
                 embeds: [{
-                    color: String('#33ccff'),
-                    title: String('You were reviewed!'),
-                    description: String([interaction.member, ' has reviewed you as an Helper!', '\n', '\n', '**Review given:** :star: ', rating, '\n', '**Comment:** ', interaction.options.getString('comment'), '\n', '\n', '**Over-all rating:** :star: ', Math.round(ratingoverall), '\n', '**Total reviews:** ', total_reviews].join('')),
+                    color: ('#33ccff'),
+                    title: ('You were reviewed!'),
+                    description: ([interaction.member, ' has reviewed you as an Helper!', '\n', '\n', '**Review given:** :star: ', rating, '\n', '**Comment:** ', interaction.options.getString('comment'), '\n', '\n', '**Over-all rating:** :star: ', Math.round(ratingoverall), '\n', '**Total reviews:** ', total_reviews].join('')),
                 }]
             });
 
@@ -667,59 +632,59 @@
             */
             await interaction.reply({
                 embeds: [{
-                    color: String('#33ccff'),
-                    title: String('Reviewing ' + String((interaction.options.getUser('helper')).username)),
-                    description: String('✅ Your review has been sent. Thank you very much!'),
+                    color: ('#33ccff'),
+                    title: ('Reviewing ' + interaction.options.getUser('helper').username),
+                    description: ('✅ Your review has been sent. Thank you very much!'),
                 }],
                 ephemeral: false,
                 components: []
             });
         }
-        if ((interaction.commandName) == 'profile') {
-            if ((interaction.options.getUser('user')) == null) {
+        if (interaction.commandName == 'profile') {
+            if (interaction.options.getUser('user') == null) {
 
                 /*
                 Rewards Code
                 */
                 // rewards check
-                if (!rewards.has(String(('tier-' + String((interaction.member).id))))) {
+                if (!rewards.has((('tier-' + ((interaction.member).id))))) {
                     user_tier = 'None';
                     user_rpoints = 0;
-                } else if (rewards.get(String(('tier-' + String((interaction.member).id)))) == 5) {
+                } else if (rewards.get((('tier-' + ((interaction.member).id)))) == 5) {
                     user_tier = '5 [VIP]';
-                    user_rpoints = rewards.get(String(('points-' + String((interaction.member).id))));
+                    user_rpoints = rewards.get((('points-' + ((interaction.member).id))));
                 } else {
-                    user_tier = rewards.get(String(('tier-' + String((interaction.member).id))));
-                    user_rpoints = rewards.get(String(('points-' + String((interaction.member).id))));
+                    user_tier = rewards.get((('tier-' + ((interaction.member).id))));
+                    user_rpoints = rewards.get((('points-' + ((interaction.member).id))));
                 }
 
                 /*
                 Badges Code
                 */
-                if (profiles.get(String(('badges-' + String((interaction.member).id)))) != 'none' && !(profiles.get(String(('badges-' + String((interaction.member).id)))) == null)) {
-                    badges = profiles.get(String(('badges-' + String((interaction.member).id))));
+                if (profiles.get((('badges-' + ((interaction.member).id)))) != 'none' && !(profiles.get((('badges-' + ((interaction.member).id)))) == null)) {
+                    badges = profiles.get((('badges-' + ((interaction.member).id))));
                 } else {
                     badges = '';
                 }
                 // vip
                 if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1167912910568296520')).id)) {
-                    badges = String(badges) + '<:VIP:1168253487252000808> **VIP** ';
+                    badges = (badges) + '<:VIP:1168253487252000808> **VIP** ';
                 }
                 // og
                 if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1025976326542348359')).id)) {
-                    badges = String(badges) + '<:minecraftHeart:887700546687995964> **OG** ';
+                    badges = (badges) + '<:minecraftHeart:887700546687995964> **OG** ';
                 }
                 // Flow Premium
                 if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1155933625276190770')).id)) {
-                    badges = String(badges) + '<:Flow_Premium:1168253434693169203> **Flow Premium** ';
+                    badges = (badges) + '<:Flow_Premium:1168253434693169203> **Flow Premium** ';
                 }
                 // Flow Basic
                 if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1080800593867706399')).id)) {
-                    badges = String(badges) + '<:Flow_Basic:1168253367143899216> **Flow Basic** ';
+                    badges = (badges) + '<:Flow_Basic:1168253367143899216> **Flow Basic** ';
                 }
                 // verified helper
                 if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1168266159351676978')).id)) {
-                    badges = String(badges) + '<:verified_server_owner:890546554073657355> *Verified Helper* ';
+                    badges = (badges) + '<:verified_server_owner:890546554073657355> *Verified Helper* ';
                     vhelper = '<:verified_server_owner:890546554073657355> **Verified Helper!**';
                 } else {
                     vhelper = '**Helper Statistics**';
@@ -729,15 +694,16 @@
                 }
                 await interaction.reply({
                     embeds: [{
-                        color: String(colourRandom()),
-                        title: String(String(textToTitleCase((s4d.client.users.cache.get(String(((interaction.member).id)))).username)) + '\'s Profile'),
-                        description: String([badges, '\n', '\n', ':heart_decoration: **About me:** ', '\n', bio].join('')),
+                        color: (colourRandom()),
+                        title: ((textToTitleCase((s4d.client.users.cache.get((((interaction.member).id)))).username)) + '\'s Profile'),
+                        description: ([badges, '\n', '\n', ':heart_decoration: **About me:** ', '\n', bio].join('')),
                         thumbnail: {
-                            url: String((interaction.member).displayAvatarURL({
+                            url: ((interaction.member).displayAvatarURL({
                                 format: "png"
                             }))
                         },
-                        fields: [{
+                        fields: [
+                            {
                                 name: 'Rewards & Economy',
                                 value: (['**Rewards:**', '\n', '\n', ':gem: **Tier:** ', user_tier, '\n', ':blue_square: **Points:** ', user_rpoints, '\n', '\n', '**Economy:**', '\n', '<:money:1043160500021760071> **Wallet:** ', 'Unavailable', '\n', '<:creditcard:1043160501292642314> **Bank:** ', 'Unavailable', '\n', '<:Info:1081346731041624125>  **Total:** ', 'Unavailable'].join('')),
                                 inline: true,
@@ -746,12 +712,8 @@
                                 name: 'Helper',
                                 value: ([vhelper, '\n', '\n', '**Rating:** ', '5 <:thumbsUpS4D:887700059737710613>', '\n', '**Ratings:** ', '2 (placeholder)', '\n', '**Reviewed:** ', '0'].join('')),
                                 inline: true,
-                            },
-
-                        ],
-                        image: {
-                            url: String('')
-                        },
+                            }
+                        ]
                     }],
                     ephemeral: false,
                     components: []
@@ -767,16 +729,14 @@
         if ((interaction.commandName) == 'flow') {
             await interaction.reply({
                 embeds: [{
-                    color: String('#33ccff'),
-                    title: String('S4D Flow'),
-                    description: String(['Choose the Flow Plan that best fits your needs. Starting at 500 Economy Credits per month or 5000 Credits per year.', '\n', `Every Flow plan includes:
+                    color: ('#33ccff'),
+                    title: ('S4D Flow'),
+                    description: (['Choose the Flow Plan that best fits your needs. Starting at 500 Economy Credits per month or 5000 Credits per year.', '\n', `Every Flow plan includes:
         * Exclusive role with color
         * Cool perks
         * Access to a special chat`].join('')),
-                    thumbnail: {
-                        url: String()
-                    },
-                    fields: [{
+                    fields: [
+                        {
                             name: '<:Flow_Basic:1168253367143899216> Flow Basic',
                             value: '',
                             inline: true,
@@ -790,16 +750,15 @@
                             name: '<a:FlowPremium:1169338764603179088> Flow Premium',
                             value: '',
                             inline: true,
-                        },
-
-                    ],
+                        }
+                    ]
                 }],
                 ephemeral: true,
                 components: []
             });
         }
-        if ((interaction.commandName) == 'test') {
-            flow.set(String('subscribers'), []);
+        if (interaction.commandName == 'test') {
+            flow.set('subscribers', []);
             await interaction.reply({
                 content: 'ok',
                 ephemeral: true,
@@ -870,11 +829,11 @@
         if ((((s4dThread).parent).id) == '1025976404187295765') {
             await delay(Number(1) * 1000);
             (s4dThread).send({
-                content: String('[BETA]'),
+                content: ('[BETA]'),
                 embeds: [{
-                    color: String('#ff6600'),
-                    title: String('Welcome to support, We\'re here to help!'),
-                    description: String(['Hello! Welcome to S4D Wold Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.', '\n', '|| WIP, will not work! If your case is solved, please send **/solved** Thank you!||', '\n', 'Good luck with your project! - S4DW Team'].join('')),
+                    color: ('#ff6600'),
+                    title: ('Welcome to support, We\'re here to help!'),
+                    description: (['Hello! Welcome to S4D Wold Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.', '\n', '|| WIP, will not work! If your case is solved, please send **/solved** Thank you!||', '\n', 'Good luck with your project! - S4DW Team'].join('')),
                 }]
             });
         }
@@ -898,10 +857,10 @@
             if (((s4dmessage.content) || '').startsWith('!' || '')) {
                 return
             }
-            if ((Number((s4dmessage.content))) == count.get(String('count')) + 1) {
-                if (count.get(String('previous_counter')) == ((s4dmessage.member).id)) {
+            if ((Number((s4dmessage.content))) == count.get(('count')) + 1) {
+                if (count.get(('previous_counter')) == ((s4dmessage.member).id)) {
                     s4dmessage.reply({
-                        content: String('Please let somebody else count the next number!'),
+                        content: ('Please let somebody else count the next number!'),
                         allowedMentions: {
                             repliedUser: true
                         }
@@ -913,22 +872,22 @@
 
                     });
                 } else {
-                    count.add(String('count'), parseInt(1));
-                    count.set(String('previous_counter'), ((s4dmessage.member).id));
+                    count.add(('count'), parseInt(1));
+                    count.set(('previous_counter'), ((s4dmessage.member).id));
                     s4dmessage.react('✅');
                     try {
-                        if (count.get(String('count')) == count.get(String('goal'))) {
+                        if (count.get(('count')) == count.get(('goal'))) {
                             s4dmessage.channel.send({
                                 embeds: [{
-                                    color: String('#ffffff'),
-                                    title: String('🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉'),
-                                    description: String(['We hit our goal of `', count.get(String('goal')), '`! :tada:', '\n', 'New goal: `', count.get(String('goal')) + 1000, '`'].join('')),
+                                    color: ('#ffffff'),
+                                    title: ('🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉'),
+                                    description: (['We hit our goal of `', count.get(('goal')), '`! :tada:', '\n', 'New goal: `', count.get(('goal')) + 1000, '`'].join('')),
                                 }]
                             }).then(async (s4dreply) => {
                                 (s4dmessage).pin()
                             });
-                            count.add(String('goal'), parseInt(1000));
-                            eval((['s4d.client.channels.cache.get(\'1068486368596082688\').setTopic(\'', 'Goal: ', count.get(String('goal')), ' | Count here with fellow members! one count per message and wait for someone else to count before sending another message.\')'].join('')));
+                            count.add(('goal'), parseInt(1000));
+                            eval((['s4d.client.channels.cache.get(\'1068486368596082688\').setTopic(\'', 'Goal: ', count.get(('goal')), ' | Count here with fellow members! one count per message and wait for someone else to count before sending another message.\')'].join('')));
                         }
 
                     } catch (err) {
@@ -939,13 +898,13 @@
                 }
             } else {
                 s4dmessage.reply({
-                    content: String(('Please stick to the count, next number is ' + String(count.get(String('count')) + 1))),
+                    content: (('Please stick to the count, next number is ' + (count.get(('count')) + 1))),
                     allowedMentions: {
                         repliedUser: true
                     }
                 }).then(async (s4dfrost_real_reply) => {
                     s4dmessage.react('❌');
-                    await delay(Number(5) * 1000);
+                    await delay(5 * 1000);
                     s4dfrost_real_reply.delete();
                     s4dmessage.delete();
 
@@ -956,11 +915,11 @@
         if (command == 's4d!review') {
             s4dmessage.channel.send({
                 embeds: [{
-                    color: String('#ff9900'),
-                    title: String('Reviewing has moved...'),
-                    description: String('Reviewing has moved to slash commands!'),
+                    color: ('#ff9900'),
+                    title: ('Reviewing has moved...'),
+                    description: ('Reviewing has moved to slash commands!'),
                     thumbnail: {
-                        url: String('https://cdn.discordapp.com/emojis/901891914629009448.webp?size=48&name=CS_Slashcmd&quality=lossless')
+                        url: ('https://cdn.discordapp.com/emojis/901891914629009448.webp?size=48&name=CS_Slashcmd&quality=lossless')
                     },
                 }]
             });
@@ -968,12 +927,12 @@
         if (command == 'Flow:demoBasic') {
             (s4dmessage.channel).send({
                 embeds: [{
-                    color: String('#33ccff'),
-                    title: String('A wild Gift appears!'),
-                    description: String(`### S4D Flow Basic (1 Month)
+                    color: ('#33ccff'),
+                    title: ('A wild Gift appears!'),
+                    description: (`### S4D Flow Basic (1 Month)
         Get sweet, sweet chat and server perks!`),
                     thumbnail: {
-                        url: String('https://cdn.discordapp.com/emojis/1168253367143899216.webp?size=96&quality=lossless')
+                        url: ('https://cdn.discordapp.com/emojis/1168253367143899216.webp?size=96&quality=lossless')
                     },
                 }],
                 components: [(new MessageActionRow()
@@ -984,19 +943,17 @@
                         .setDisabled(false)
                         .setStyle(('PRIMARY')),
                     ))]
-            }).then(async m => {
-
-            });
+            })
         }
         if (command == 'Flow:demoPlus') {
             (s4dmessage.channel).send({
                 embeds: [{
-                    color: String('#9999ff'),
-                    title: String('A wild Gift appears!'),
-                    description: String(`### S4D Flow Plus (1 Month)
-        Get sweet premium chat and server perks!`),
+                    color: ('#9999ff'),
+                    title: ('A wild Gift appears!'),
+                    description: (`### S4D Flow Plus (1 Month)
+Get sweet premium chat and server perks!`),
                     thumbnail: {
-                        url: String('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
+                        url: ('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
                     },
                 }],
                 components: [(new MessageActionRow()
@@ -1007,19 +964,17 @@
                         .setDisabled(false)
                         .setStyle(('PRIMARY')),
                     ))]
-            }).then(async m => {
-
-            });
+            })
         }
         if (command == 'Flow:demoPremium') {
             (s4dmessage.channel).send({
                 embeds: [{
-                    color: String('#6600cc'),
-                    title: String('A wild Gift appears!'),
-                    description: String(`### S4D Flow Premium (1 Month)
-        Get sweet perks and Premium Services!`),
+                    color: ('#6600cc'),
+                    title: ('A wild Gift appears!'),
+                    description: (`### S4D Flow Premium (1 Month)
+Get sweet perks and Premium Services!`),
                     thumbnail: {
-                        url: String('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
+                        url: ('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
                     },
                 }],
                 components: [(new MessageActionRow()
@@ -1030,9 +985,7 @@
                         .setDisabled(false)
                         .setStyle(('PRIMARY')),
                     ))]
-            }).then(async m => {
-
-            });
+            })
         }
 
     });
@@ -1040,9 +993,9 @@
     s4d.Inviter.on('UserInvited', async function(member, uses, inviter, invite) {
         s4d.client.channels.cache.get('1025976414475915356').send({
             embeds: [{
-                color: String('#33ff33'),
-                title: String('New join!'),
-                description: String([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
+                color: ('#33ff33'),
+                title: ('New join!'),
+                description: ([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
             }]
         });
 
@@ -1051,9 +1004,9 @@
     s4d.Inviter.on('UserLeave', async function(member, uses, inviter, invite) {
         s4d.client.channels.cache.get('1025976414475915356').send({
             embeds: [{
-                color: String('#ff0000'),
-                title: String('User leave'),
-                description: String([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
+                color: ('#ff0000'),
+                title: ('User leave'),
+                description: ([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
             }]
         });
 
@@ -1067,17 +1020,17 @@
         command = argument.shift();
         prompt2 = argument.join(' ');
         if (command == 's4d!imagine') {
-            if (commands.get(String('disabled-imagine')) == 'false') {
+            if (commands.get(('disabled-imagine')) == 'false') {
                 s4dmessage.channel.send({
                     embeds: [{
-                        color: String('#ff6600'),
-                        title: String('Your image is being generated'),
-                        description: String(['Prompt:', prompt2, '\n', 'Your image should take about 10 sec.'].join('')),
+                        color: ('#ff6600'),
+                        title: ('Your image is being generated'),
+                        description: (['Prompt:', prompt2, '\n', 'Your image should take about 10 sec.'].join('')),
                     }]
                 }).then(async (s4dreply) => {
                     S4D_APP_PKG_axios({
                             method: "get",
-                            url: ('https://api.fsh.plus/imagine?text=' + String(String(prompt2).replaceAll(' ', String('%20')))),
+                            url: ('https://api.fsh.plus/imagine?text=' + ((prompt2).replaceAll(' ', ('%20')))),
 
                             headers: {
                                 'content-type': 'application/json',
@@ -1088,11 +1041,11 @@
                         .then(async (response) => {
                             s4dreply.edit({
                                 embeds: [{
-                                    color: String('#ff6600'),
-                                    title: String('Your image is generated!'),
-                                    description: String(['Prompt:', prompt2, '\n', 'Your image was generated. Powered by Fsh API'].join('')),
+                                    color: ('#ff6600'),
+                                    title: ('Your image is generated!'),
+                                    description: (['Prompt:', prompt2, '\n', 'Your image was generated. Powered by Fsh API'].join('')),
                                     image: {
-                                        url: String(response.data.link)
+                                        url: (response.data.link)
                                     },
                                 }]
                             });
@@ -1101,22 +1054,22 @@
                         .catch(async (err) => {
                             sentryhandler = sentry_handler('imagine', Math.floor(new Date().getTime() / 1000), err);
                             s4dmessage.reply({
-                                content: String(('There was an error. please DM HitByaThunder and give him this code: ' + String(sentryhandler))),
+                                content: (('There was an error. please DM HitByaThunder and give him this code: ' + (sentryhandler))),
                                 allowedMentions: {
                                     repliedUser: true
                                 }
                             });
 
                         });
-                    commands.add(String('generations'), parseInt(1));
+                    commands.add(('generations'), (1));
 
                 });
             } else {
                 s4dmessage.reply({
                     embeds: [{
-                        color: String('#ff6600'),
-                        title: String('Command disabled!'),
-                        description: String('⛔ This command has been disabled. Reason: ' + String(commands.get(String('disabled-r-imagine')))),
+                        color: ('#ff6600'),
+                        title: ('Command disabled!'),
+                        description: ('⛔ This command has been disabled. Reason: ' + (commands.get(('disabled-r-imagine')))),
                     }],
                     allowedMentions: {
                         repliedUser: true
@@ -1130,16 +1083,14 @@
     const sentry = new Database('./sentry-errors.json')
     const flow = new Database('./flow_sub.json')
     s4d.client.on('messageCreate', async (s4dmessage) => {
-        if ((s4dmessage.content) == 's4d!flow' || (s4dmessage.content) == 's4d!s4dflow') {
+        if (s4dmessage.content == 's4d!flow' || s4dmessage.content == 's4d!s4dflow') {
             s4dmessage.reply({
-                content: String('Sale of S4D Flow is currently paused. Please check back later!'),
+                content: ('Sale of S4D Flow is currently paused. Please check back later!'),
                 allowedMentions: {
                     repliedUser: true
                 }
             });
         }
-
     });
-
-    return s4d
+    return s4d;
 })();
