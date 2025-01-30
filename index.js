@@ -304,43 +304,43 @@ Appeal Form: https://dyno.gg/form/71a7abdd`,
                     s4dmessage.member.timeout((86400 * 1000), 'Using Slurs [Pending verification]')
                     s4dmessage.channel.send({
                         embeds: [{
-                            color: ('#ff0000'),
-                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: (`Reason: Using slurs.
-The owner has been notified and the bot may be removed.`),
+                            color: '#ff0000',
+                            title: s4dmessage.author.tag + ' [BOT] has been timed out for 1 day.',
+                            description: `Reason: Using slurs.
+The owner has been notified and the bot may be removed.`
                         }]
                     });
                     (s4d.client.users.cache.get('767102460673916958')).send({
                         embeds: [{
-                            color: ('#ff0000'),
-                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: (`Reason: Using slurs.
-Please review the situation.`),
+                            color: '#ff0000',
+                            title: s4dmessage.author.tag + ' [BOT] has been timed out for 1 day.',
+                            description: `Reason: Using slurs.
+Please review the situation.`
                         }]
                     });
                     s4d.client.channels.cache.find((channel) => channel.name === '1029489074970562560').send({
                         embeds: [{
-                            color: ('#ff0000'),
-                            title: ((s4dmessage.author.tag) + ' [BOT] has been timed out for 1 day.'),
-                            description: (`Reason: Using slurs.
-The owner has been notified and the bot may be removed.`),
+                            color: '#ff0000',
+                            title: s4dmessage.author.tag + ' [BOT] has been timed out for 1 day.',
+                            description: `Reason: Using slurs.
+The owner has been notified and the bot may be removed.`
                         }]
                     });
                 } else {
                     s4dmessage.member.timeout((86400 * 1000), 'Using Slurs')
                         (s4d.client.users.cache.get(('767102460673916958'))).send({
                             embeds: [{
-                                color: ('#ff0000'),
-                                title: ((s4dmessage.author.tag) + '  has been timed out for 1 day.'),
-                                description: (`Reason: Using slurs.
-Please review the situation.`),
+                                color: '#ff0000',
+                                title: s4dmessage.author.tag + '  has been timed out for 1 day.',
+                                description: `Reason: Using slurs.
+Please review the situation.`
                             }]
                         });
-                    (s4dmessage.member).send({
+                    s4dmessage.member.send({
                         embeds: [{
-                            color: ('#ff0000'),
-                            title: ('You have been timed out in Scratch For Discord World!'),
-                            description: ('Reason: Using slurs.'),
+                            color: '#ff0000',
+                            title: 'You have been timed out in Scratch For Discord World!',
+                            description: 'Reason: Using slurs.'
                         }]
                     });
                 }
@@ -355,14 +355,14 @@ Please review the situation.`),
                 var j_list2 = 'thank,ty'.split(',');
                 for (var j_index2 in j_list2) {
                     j = j_list2[j_index2];
-                    if ((s4dmessage.content.toLowerCase()).includes(j)) {
+                    if (s4dmessage.content.toLowerCase().includes(j)) {
                         s4dmessage.channel.send({
                             embeds: [{
-                                color: ('#33ccff'),
-                                title: ('⭐ Had a good experience?'),
-                                description: (`Please review the helper(s) that helped you. It would be greatly appreciated!
+                                color: '#33ccff',
+                                title: '⭐ Had a good experience?',
+                                description: `Please review the helper(s) that helped you. It would be greatly appreciated!
 
-**Use:** \`/review <helper> <1-5> <comment>\``),
+**Use:** \`/review <helper> <1-5> <comment>\``,
                             }]
                         });
                     }
@@ -396,12 +396,9 @@ Please review the situation.`),
                 if (s4dmessage.content.toLowerCase().includes(j)) {
                     s4dmessage.reply({
                         embeds: [{
-                            color: ('#ff9900'),
-                            description: ('<:thwinkies:959150928785731634> Looking for S4D Help? Please create a post in <#1025976404187295765>!'),
-                        }],
-                        allowedMentions: {
-                            repliedUser: true
-                        }
+                            color: '#ff9900',
+                            description: '<:thwinkies:959150928785731634> Looking for S4D Help? Please create a post in <#1025976404187295765>!'
+                        }]
                     });
                     return;
                 }
@@ -423,21 +420,17 @@ Please review the situation.`),
             case 'help':
                 s4dmessage.reply({
                     embeds: [{
-                        color: ('#ff6600'),
-                        title: ('S4D Utilities Help'),
-                        description: (`Hello! Help has arrived!
+                        color: '#ff6600',
+                        title: 'S4D Utilities Help',
+                        description: `Hello! Help has arrived!
 Use \`s4d!cmd <command>\` to get more info about a specific command.
 
 s4d!review - give a review for a helper
 s4d!suggest - suggest something for the server
 s4d!cmd - Get more info about a command
-s4d!ping - Get bot ping`),
-                    }],
-                    allowedMentions: {
-                        repliedUser: true
-                    }
+s4d!ping - Get bot ping`
+                    }]
                 });
-
                 break;
             case 'info':
             case 'ping':
@@ -445,15 +438,17 @@ s4d!ping - Get bot ping`),
                     var obj = v * 100
                     s4dmessage.reply({
                         embeds: [{
-                            color: ('#ff6600'),
-                            title: ('Bot Information'),
-                            description: (['<a:Online:1067900716296970310> **Ping:** `', s4d.client.ws.ping, ' ms`', '\n', '<:Interface:996912177422282874> **Version:** ', version, '\n', '\n', '<:cpu:877177572406997092> **CPU:** `', Math.round(Number((obj))), '%`', '\n', '<:ram:877177600185864213> **RAM:** `', [Math.round((Number((os.totalmem()))) - (Number((os.freemem())))), 'MB / ', Number((os.totalmem()))].join(''), 'MB`', '\n', '<a:Cd:868829379604648008> **OS:** `', os.platform(), '`', '\n', '<:Host:1067901030827823174> **Host:** `', host, '`'].join('')),
-                        }],
-                        allowedMentions: {
-                            repliedUser: true
-                        }
-                    });
+                            color: '#ff6600',
+                            title: 'Bot Information',
+                            description: `<a:Online:1067900716296970310> **Ping:** \`${s4d.client.ws.ping} ms\`
+<:Interface:996912177422282874> **Version:** ${version}
 
+<:cpu:877177572406997092> **CPU:** \`${Math.round(obj)}%\`
+<:ram:877177600185864213> **RAM:** \`${[Math.round((Number((os.totalmem()))) - (Number((os.freemem())))), 'MB / ', Number((os.totalmem()))].join('')}MB\`
+<a:Cd:868829379604648008> **OS:** \`${os.platform()}\`
+<:Host:1067901030827823174> **Host:** \`${host}\``
+                        }]
+                    });
                 });
                 break;
             case 'ban':
@@ -463,95 +458,32 @@ s4d!ping - Get bot ping`),
                     if (user == null) {
                         s4dmessage.reply({
                             embeds: [{
-                                color: ('#ff9900'),
-                                title: ('Moderation | Ban'),
-                                description: (`**Bans someone off the server.**
+                                color: '#ff9900',
+                                title: 'Moderation | Ban',
+                                description: `**Bans someone off the server.**
 Usage: \`s4d!ban <user> <reason>\`
-Aliasses: \`ban, b\``),
-                            }],
-                            allowedMentions: {
-                                repliedUser: true
-                            }
+Aliasses: \`ban, b\``
+                            }]
                         });
                     }
                 } else if (s4dmessage.member._roles.includes(ModRoleID)) {
-                    s4dmessage.reply({
-                        content: ('You do not have the permission to ban. Ask an admin.'),
-                        allowedMentions: {
-                            repliedUser: true
-                        }
-                    });
+                    s4dmessage.reply('You do not have the permission to ban. Ask an admin.');
                 }
                 break;
             case 'suggest':
-                s4dmessage.channel.send({
-                    content: ('Suggest is temporary disabled.')
-                });
+                s4dmessage.channel.send('Suggest is temporary disabled.');
                 break;
             case 'check':
                 s4dmessage.channel.send(s4d.client.ws.ping);
                 s4dmessage.react('✅');
                 break;
-            case 'admin':
-                if (arguments2[0] == 'dangerscan') {
-                    adm_ds = [];
-                    mang_ds = [];
-                    maro_ds = [];
-                    ban_ds = [];
-                    (s4dmessage.guild).roles.cache.forEach(async (ro) => {
-                        if ((ro).permissions.has('ADMINISTRATOR')) {
-                            adm_ds.push((ro));
-                        } else if ((ro).permissions.has('MANAGE_GUILD')) {
-                            mang_ds.push((ro));
-                        } else if ((ro).permissions.has('MANAGE_ROLES')) {
-                            mang_ds.push((ro));
-                        } else if ((ro).permissions.has('BAN_MEMBERS')) {
-                            ban_ds.push((ro));
-                        }
-
-                    })
-                    s4dmessage.reply({
-                        embeds: [{
-                            color: ('#ff0000'),
-                            title: ('Danger Scan'),
-                            description: ('Danger scan complete'),
-                            fields: [{
-                                    name: 'Administrator',
-                                    value: ((adm_ds.join('\n')) + ' '),
-                                    inline: true,
-                                },
-                                {
-                                    name: 'Manage_server',
-                                    value: ((mang_ds.join('\n')) + ' '),
-                                    inline: true,
-                                },
-                                {
-                                    name: 'Manage_roles',
-                                    value: ((maro_ds.join('\n')) + ' '),
-                                    inline: true,
-                                },
-                                {
-                                    name: 'Ban_members',
-                                    value: ((ban_ds.join('\n')) + ' '),
-                                    inline: true,
-                                }
-                            ]
-                        }],
-                        allowedMentions: {
-                            repliedUser: true
-                        }
-                    });
-                }
-                break;
         };
         if (s4dmessage.author.id == '767102460673916958') {
-            if (((s4dmessage.content) ?? '').startsWith('s4d!eval')) {
+            if ((s4dmessage.content ?? '').startsWith('s4d!eval')) {
                 try {
-                    s4dmessage.channel.send(await eval(s4dmessage.content.replaceAll('s4d!eval', '')));
+                    s4dmessage.channel.send(await eval(s4dmessage.content.replace('s4d!eval', '')));
                 } catch (err) {
-                    s4dmessage.channel.send({
-                        content: 'Error! ```' + err + '```'
-                    });
+                    s4dmessage.channel.send('Error! ```' + err + '```');
                 }
             }
         }
@@ -860,10 +792,7 @@ Aliasses: \`ban, b\``),
             if ((Number((s4dmessage.content))) == count.get(('count')) + 1) {
                 if (count.get(('previous_counter')) == ((s4dmessage.member).id)) {
                     s4dmessage.reply({
-                        content: ('Please let somebody else count the next number!'),
-                        allowedMentions: {
-                            repliedUser: true
-                        }
+                        content: ('Please let somebody else count the next number!')
                     }).then(async (s4dfrost_real_reply) => {
                         s4dmessage.react('❌');
                         await delay(Number(5) * 1000);
@@ -898,10 +827,7 @@ Aliasses: \`ban, b\``),
                 }
             } else {
                 s4dmessage.reply({
-                    content: (('Please stick to the count, next number is ' + (count.get(('count')) + 1))),
-                    allowedMentions: {
-                        repliedUser: true
-                    }
+                    content: (('Please stick to the count, next number is ' + (count.get(('count')) + 1)))
                 }).then(async (s4dfrost_real_reply) => {
                     s4dmessage.react('❌');
                     await delay(5 * 1000);
@@ -1054,10 +980,7 @@ Get sweet perks and Premium Services!`),
                         .catch(async (err) => {
                             sentryhandler = sentry_handler('imagine', Math.floor(new Date().getTime() / 1000), err);
                             s4dmessage.reply({
-                                content: (('There was an error. please DM HitByaThunder and give him this code: ' + (sentryhandler))),
-                                allowedMentions: {
-                                    repliedUser: true
-                                }
+                                content: (('There was an error. please DM HitByaThunder and give him this code: ' + (sentryhandler)))
                             });
 
                         });
@@ -1070,10 +993,7 @@ Get sweet perks and Premium Services!`),
                         color: ('#ff6600'),
                         title: ('Command disabled!'),
                         description: ('⛔ This command has been disabled. Reason: ' + (commands.get(('disabled-r-imagine')))),
-                    }],
-                    allowedMentions: {
-                        repliedUser: true
-                    }
+                    }]
                 });
             }
         }
@@ -1085,10 +1005,7 @@ Get sweet perks and Premium Services!`),
     s4d.client.on('messageCreate', async (s4dmessage) => {
         if (s4dmessage.content == 's4d!flow' || s4dmessage.content == 's4d!s4dflow') {
             s4dmessage.reply({
-                content: ('Sale of S4D Flow is currently paused. Please check back later!'),
-                allowedMentions: {
-                    repliedUser: true
-                }
+                content: ('Sale of S4D Flow is currently paused. Please check back later!')
             });
         }
     });
