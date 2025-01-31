@@ -3,12 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "npm i && node ."
+    "start": "node ."
   },
   "dependencies": {
     "@frostzzone/discord-sync-commands": "^0.3.0",
-    "@haileybot/captcha-generator": "^1.7.0",
-    "axios": "^1.7.9",
     "discord-inviter-tracker": "^1.0.3",
     "discord.js": "^13.17.1",
     "easy-json-database": "^1.5.1",

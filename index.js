@@ -16,7 +16,6 @@
     // block imports
     const os = require("os-utils");
     let Invite = require("discord-inviter-tracker");
-    const S4D_APP_PKG_axios = require('axios');
     const synchronizeSlashCommands = require('@frostzzone/discord-sync-commands');
     const Database = require("easy-json-database");
 
