@@ -1,43 +1,40 @@
-(async () => {
-    // default imports
-    const Discord = require("discord.js")
-    const {
-        MessageEmbed,
-        MessageButton,
-        MessageActionRow,
-        Intents,
-        Permissions,
-        MessageSelectMenu
-    } = require("discord.js");
-    let process = require('process');
-    process.env = require('./env.js');
-    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const Discord = require("discord.js")
+const { MessageEmbed, MessageButton, MessageActionRow, Intents, Permissions, MessageSelectMenu } = require("discord.js");
 
-    // block imports
-    const os = require("os-utils");
-    let Invite = require("discord-inviter-tracker");
-    const synchronizeSlashCommands = require('@frostzzone/discord-sync-commands');
-    const Database = require("easy-json-database");
+let process = require('process');
+process.env = require('./env.js');
 
+const os = require("os-utils");
+let Invite = require("discord-inviter-tracker");
+const synchronizeSlashCommands = require('@frostzzone/discord-sync-commands');
+const DB = require("fshdb");
+
+const count = new DB('databases/counting.json');
+const moderation = new DB('databases/mod_db.json');
+const commands = new DB('databases/cmd-db.json');
+const cmd = new DB('databases/cmd.json');
+const warns = new DB('databases/warnings.json');
+const reviews = new DB('databases/reviews-db.json');
+const suggestions = new DB('databases/suggestion-db.json');
+const profiles = new DB('databases/profiles.json');
+const rewards = new DB('databases/rewards.json');
+const sentry = new DB('databases/sentry-errors.json');
+const flow = new DB('databases/flow_sub.json');
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+(async() => {
     let s4d = {
         Discord,
-        fire: null,
         reply: null,
-        player: null,
-        manager: null,
         Inviter: null,
-        message: null,
-        notifer: null,
-        checkMessageExists() {
-            if (!s4d.client) throw new Error('You cannot perform message operations without a Discord.js client')
-            if (!s4d.client.readyTimestamp) throw new Error('You cannot perform message operations while the bot is not connected to the Discord API')
-        }
+        message: null
     };
 
     // create a new discord client
     s4d.client = new s4d.Discord.Client({
         intents: [
-            Object.values(s4d.Discord.Intents.FLAGS).reduce((acc, p) => acc | p, 0)
+            Object.values(Intents.FLAGS).reduce((acc, p) => acc | p, 0)
         ],
         partials: [
             "REACTION",
@@ -98,7 +95,7 @@
 
     s4d.client.on('guildMemberAdd', async(joiningMember) => {
         if (joiningMember.guild.id === '866689038731313193') {
-            let welcome = new Discord.MessageEmbed()
+            let welcome = new MessageEmbed()
                 .setColor('#ffffff')
                 .setTitle(`Welcome ${(joiningMember.user.displayName ?? joiningMember.user.username)} to Scratch For Discord World!`)
                 .setThumbnail('https://cdn.discordapp.com/icons/866689038731313193/50da05402eaabd4619da8dafd5553601.png')
@@ -114,7 +111,7 @@
             s4d.client.guilds.cache.get('866689038731313193').channels.cache.get('1025976390564188170').send({
                 embeds: [welcome]
             });
-            let welcome_dm = new Discord.MessageEmbed()
+            let welcome_dm = new MessageEmbed()
                 .setColor('#ffffff')
                 .setTitle(`Howdy ${(joiningMember.user.displayName ?? joiningMember.user.username)} welcome to Scratch For Discord World!`)
                 .setDescription(`**Welcome to the best Scratch For Discord Server! We're glad to have you join! Get started right away:**
@@ -137,14 +134,6 @@
 
     const version = '2.1.0';
     const host = 'Private Hosting';
-
-    const count = new Database('./counting.json')
-    const moderation = new Database('./mod_db.json')
-    const commands = new Database('./cmd-db.json')
-    const cmd = new Database('./cmd.json')
-    const warns = new Database('./warnings.json')
-    const reviews = new Database('./reviews-db.json')
-    const suggestions = new Database('./suggestion-db.json')
 
     s4d.client.on('ready', async () => {
         console.log('[INFO] Bot connected to Discord');
@@ -169,8 +158,6 @@
         }
     });
 
-    const profiles = new Database('./profiles.json')
-    const rewards = new Database('./rewards.json')
     s4d.client.on('messageCreate', async (s4dmessage) => {
 
         /*
@@ -179,7 +166,7 @@
         if (s4dmessage.content.toLowerCase().includes('discord.gg') || s4dmessage.content.toLowerCase().includes('discord.com/invite/')) {
             if (s4dmessage.channel.id !== '1025976401440022558') {
                 if (!s4dmessage.member._roles.includes('1025976307143671869')) {
-                    let infrinv = new Discord.MessageEmbed()
+                    let infrinv = new MessageEmbed()
                         .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} Got an infraction from automod`)
                         .setDescription(`Reason: Posting Discord invites
 Message: ⚠ ||${s4dmessage.content}||`)
@@ -192,7 +179,7 @@ Message: ⚠ ||${s4dmessage.content}||`)
                     });
                     if (moderation.get(`warnings-${s4dmessage.author.id}`) == 3) {
                         s4dmessage.member.timeout((3600 * 1000), 'Warning threshold of 3 has been reached')
-                        let to1inv = new Discord.MessageEmbed()
+                        let to1inv = new MessageEmbed()
                             .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been timed out for 1 hour`)
                             .setDescription(`Reason: Posting Discord invites & Getting 3 infractions
 Message: ⚠ ||${s4dmessage.content}||`)
@@ -206,7 +193,7 @@ Message: ⚠ ||${s4dmessage.content}||`)
                         });
                     } else if (moderation.get(`warnings-${s4dmessage.author.id}`) == 5) {
                         s4dmessage.member.timeout((10800 * 1000), 'Warning threshold of 5 has been reached')
-                        let to3inv = new Discord.MessageEmbed()
+                        let to3inv = new MessageEmbed()
                             .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been timed out for 3 hours`)
                             .setDescription(`Reason: Posting Discord invites & Getting 5 infractions`)
                             .setColor('#ff0000');
@@ -231,7 +218,7 @@ Link to join back: https://discord.gg/N4NUxKS4Ja`),
                         s4dmessage.member.kick({
                             reason: 'Warning threshold of 8 has been reached'
                         });
-                        let kickinv = new Discord.MessageEmbed()
+                        let kickinv = new MessageEmbed()
                             .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been kicked`)
                             .setDescription('Reason: Posting Discord invites & Getting 8 infractions')
                             .setColor('#ff0000');
@@ -252,7 +239,7 @@ Link to join back: https://discord.gg/N4NUxKS4Ja`),
 Appeal Form: https://dyno.gg/form/71a7abdd`,
                             }]
                         });
-                        let baninv = new Discord.MessageEmbed()
+                        let baninv = new MessageEmbed()
                             .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been banned`)
                             .setDescription('Reason: Posting Discord invites & Getting 12 infractions')
                             .setColor('#ff0000');
@@ -267,7 +254,7 @@ Appeal Form: https://dyno.gg/form/71a7abdd`,
                             embeds: [baninv]
                         });
                     } else {
-                        let warninv = new Discord.MessageEmbed()
+                        let warninv = new MessageEmbed()
                             .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been warned`)
                             .setDescription('Reason: Posting Discord invites')
                             .setColor('#ff9900');
@@ -962,9 +949,6 @@ Your image should take about 10 sec.`
             }
         }
     });
-
-    const sentry = new Database('./sentry-errors.json');
-    const flow = new Database('./flow_sub.json');
 
     s4d.client.on('messageCreate', async(s4dmessage) => {
         if (s4dmessage.content == 's4d!flow' || s4dmessage.content == 's4d!s4dflow') {

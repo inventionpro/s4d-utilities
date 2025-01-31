@@ -1,6 +1,0 @@
-{
-  "2pmrgtMz7ed7OHgI": "{\"command_used\":\"imagine\",\"unix\":1693858241,\"error\":{\"code\":\"ERR_UNESCAPED_CHARACTERS\"}}",
-  "E2mH1t54Zzr5yssu": "{\"command_used\":\"imagine\",\"unix\":1693858644,\"error\":{\"code\":\"ERR_UNESCAPED_CHARACTERS\"}}",
-  "MUU14VCfH1KJQlUl": "{\"command_used\":\"imagine\",\"unix\":1693858660,\"error\":{\"code\":\"ERR_UNESCAPED_CHARACTERS\"}}",
-  "VDN8OiWaYACG7Kk7": "{\"command_used\":\"imagine\",\"unix\":1704406403,\"error\":{\"message\":\"Request failed with status code 530\",\"name\":\"AxiosError\",\"config\":{\"transitional\":{\"silentJSONParsing\":true,\"forcedJSONParsing\":true,\"clarifyTimeoutError\":false},\"transformRequest\":[null],\"transformResponse\":[null],\"timeout\":0,\"xsrfCookieName\":\"XSRF-TOKEN\",\"xsrfHeaderName\":\"X-XSRF-TOKEN\",\"maxContentLength\":-1,\"maxBodyLength\":-1,\"env\":{},\"headers\":{\"Accept\":\"application/json, text/plain, */*\",\"Content-Type\":\"application/json\",\"User-Agent\":\"axios/0.27.2\"},\"method\":\"get\",\"url\":\"https://api.fsh.plus/imagine?text=bhmdfs\"},\"code\":\"ERR_BAD_RESPONSE\",\"status\":530}}"
-}

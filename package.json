@@ -9,7 +9,7 @@
     "@frostzzone/discord-sync-commands": "^0.3.0",
     "discord-inviter-tracker": "^1.0.3",
     "discord.js": "^13.17.1",
-    "easy-json-database": "^1.5.1",
+    "fshdb": "^1.0.0-beta.4",
     "os-utils": "0.0.14"
   }
 }
