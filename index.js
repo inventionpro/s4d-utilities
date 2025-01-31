@@ -75,18 +75,11 @@
     }
 
     // blockly code
-    var argument, rating, command, user, prompt2, j, user_tier, user_rpoints, badges, sentryhandler, arguments2, total_reviews, vhelper, reviews_rating, bio, ratingoverall, adm_ds, mang_ds, maro_ds, version, host, AdminRoleID, RolesServer, ModRoleID, ban_ds;
+    var argument, command, user, prompt2, j, arguments2;
 
     function colourRandom() {
         var num = Math.floor(Math.random() * Math.pow(2, 24));
         return '#' + ('00000' + num.toString(16)).substr(-6);
-    }
-
-    function textToTitleCase(str) {
-        return str.replace(/\S+/g,
-            function(txt) {
-                return txt[0].toUpperCase() + txt.substring(1).toLowerCase();
-            });
     }
 
     function sentry_handler(sentry_command, timestamp, error) {
@@ -108,7 +101,7 @@
         if (joiningMember.guild.id === '866689038731313193') {
             let welcome = new Discord.MessageEmbed()
                 .setColor('#ffffff')
-                .setTitle(`Welcome ${joiningMember.user.username} to Scratch For Discord World!`)
+                .setTitle(`Welcome ${(joiningMember.user.displayName ?? joiningMember.user.username)} to Scratch For Discord World!`)
                 .setThumbnail('https://cdn.discordapp.com/icons/866689038731313193/50da05402eaabd4619da8dafd5553601.png')
                 .setDescription(`**Welcome to the best Scratch For Discord Server! Get started right away:**
 * Read the rules: <#866689216033587258>
@@ -124,7 +117,7 @@
             });
             let welcome_dm = new Discord.MessageEmbed()
                 .setColor('#ffffff')
-                .setTitle(`Howdy ${joiningMember.user.username} welcome to Scratch For Discord World!`)
+                .setTitle(`Howdy ${(joiningMember.user.displayName ?? joiningMember.user.username)} welcome to Scratch For Discord World!`)
                 .setDescription(`**Welcome to the best Scratch For Discord Server! We're glad to have you join! Get started right away:**
 * Read the rules: <#866689216033587258>
 * Get your roles and channels: [here](https://discord.com/channels/866689038731313193/customize-community)
@@ -140,15 +133,11 @@
         }
     });
 
-    RolesServer = s4d.client.guilds.cache.get('866689038731313193');
+    const AdminRoleID = '866691436494061598';
+    const ModRoleID = '1025976296532095006';
 
-    ModRoleID = '1025976296532095006';
-
-    AdminRoleID = '866691436494061598';
-
-    version = '2.0.1';
-
-    host = 'Private Hosting';
+    const version = '2.1.0';
+    const host = 'Private Hosting';
 
     const count = new Database('./counting.json')
     const moderation = new Database('./mod_db.json')
@@ -192,7 +181,7 @@
             if (s4dmessage.channel.id !== '1025976401440022558') {
                 if (!s4dmessage.member._roles.includes('1025976307143671869')) {
                     let infrinv = new Discord.MessageEmbed()
-                        .setTitle(`${s4dmessage.author.username} Got an infraction from automod`)
+                        .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} Got an infraction from automod`)
                         .setDescription(`Reason: Posting Discord invites
 Message: ⚠ ||${s4dmessage.content}||`)
                         .setColor('#ff6600');
@@ -205,7 +194,7 @@ Message: ⚠ ||${s4dmessage.content}||`)
                     if (moderation.get(`warnings-${s4dmessage.author.id}`) == 3) {
                         s4dmessage.member.timeout((3600 * 1000), 'Warning threshold of 3 has been reached')
                         let to1inv = new Discord.MessageEmbed()
-                            .setTitle(`${s4dmessage.author.username} has been timed out for 1 hour`)
+                            .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been timed out for 1 hour`)
                             .setDescription(`Reason: Posting Discord invites & Getting 3 infractions
 Message: ⚠ ||${s4dmessage.content}||`)
                             .setColor('#ff0000');
@@ -219,7 +208,7 @@ Message: ⚠ ||${s4dmessage.content}||`)
                     } else if (moderation.get(`warnings-${s4dmessage.author.id}`) == 5) {
                         s4dmessage.member.timeout((10800 * 1000), 'Warning threshold of 5 has been reached')
                         let to3inv = new Discord.MessageEmbed()
-                            .setTitle(`${s4dmessage.author.username} has been timed out for 3 hours`)
+                            .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been timed out for 3 hours`)
                             .setDescription(`Reason: Posting Discord invites & Getting 5 infractions`)
                             .setColor('#ff0000');
 
@@ -244,7 +233,7 @@ Link to join back: https://discord.gg/N4NUxKS4Ja`),
                             reason: 'Warning threshold of 8 has been reached'
                         });
                         let kickinv = new Discord.MessageEmbed()
-                            .setTitle(`${s4dmessage.author.username} has been kicked`)
+                            .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been kicked`)
                             .setDescription('Reason: Posting Discord invites & Getting 8 infractions')
                             .setColor('#ff0000');
 
@@ -265,7 +254,7 @@ Appeal Form: https://dyno.gg/form/71a7abdd`,
                             }]
                         });
                         let baninv = new Discord.MessageEmbed()
-                            .setTitle(`${s4dmessage.author.username} has been banned`)
+                            .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been banned`)
                             .setDescription('Reason: Posting Discord invites & Getting 12 infractions')
                             .setColor('#ff0000');
 
@@ -280,7 +269,7 @@ Appeal Form: https://dyno.gg/form/71a7abdd`,
                         });
                     } else {
                         let warninv = new Discord.MessageEmbed()
-                            .setTitle(`${s4dmessage.author.username} has been warned`)
+                            .setTitle(`${(s4dmessage.member.displayName ?? s4dmessage.author.username)} has been warned`)
                             .setDescription('Reason: Posting Discord invites')
                             .setColor('#ff9900');
 
@@ -491,20 +480,19 @@ Aliasses: \`ban, b\``
 
     s4d.client.on('interactionCreate', async (interaction) => {
         if (interaction.commandName == 'review') {
-            rating = interaction.options.getInteger('rating');
+            let rating = interaction.options.getInteger('rating');
 
             /*
             rating scale check (1-5)
             */
-            if (!(rating >= 1 && rating <= 5)) {
+            if (rating < 1 || rating > 5) {
                 await interaction.reply({
                     embeds: [{
-                        color: ('#ff0000'),
-                        title: ('Review'),
-                        description: ('❌ **You need to give a rating between 1 and 5.**'),
+                        color: '#ff0000',
+                        title: 'Review',
+                        description: '❌ **You need to give a rating between 1 and 5.**'
                     }],
-                    ephemeral: true,
-                    components: []
+                    ephemeral: true
                 });
                 return;
             }
@@ -512,15 +500,14 @@ Aliasses: \`ban, b\``
             /*
             no self review
             */
-            if (interaction.options.getUser('helper') == interaction.member) {
+            if (interaction.options.getUser('helper') == interaction.user) {
                 await interaction.reply({
                     embeds: [{
-                        color: ('#ff0000'),
-                        title: ('Review'),
-                        description: ('❌ **You can\'t review yourself.**'),
+                        color: '#ff0000',
+                        title: 'Review',
+                        description: '❌ **You can\'t review yourself.**'
                     }],
-                    ephemeral: true,
-                    components: []
+                    ephemeral: true
                 });
                 return;
             }
@@ -531,31 +518,36 @@ Aliasses: \`ban, b\``
             if ((interaction.options.getUser('helper')).bot) {
                 await interaction.reply({
                     embeds: [{
-                        color: ('#ff0000'),
-                        title: ('Review'),
-                        description: ('❌ **You can\'t review bots.**'),
+                        color: '#ff0000',
+                        title: 'Review',
+                        description: '❌ **You can\'t review bots.**'
                     }],
-                    ephemeral: true,
-                    components: []
+                    ephemeral: true
                 });
                 return
             }
-            reviews.add('reviewed-' + interaction.member.id, 1);
+            reviews.add('reviewed-' + interaction.user.id, 1);
 
             /*
             calculate + database nerdyness + send
             */
             reviews.add('reviews-' + interaction.options.getUser('helper').id, 1);
             reviews.add('rating-' + interaction.options.getUser('helper').id, rating);
-            total_reviews = reviews.get('reviews-' + interaction.options.getUser('helper').id);
-            reviews_rating = reviews.get('rating-' + interaction.options.getUser('helper').id);
-            ratingoverall = reviews_rating / total_reviews;
+            let total_reviews = reviews.get('reviews-' + interaction.options.getUser('helper').id);
+            let reviews_rating = reviews.get('rating-' + interaction.options.getUser('helper').id);
+            let ratingoverall = reviews_rating / total_reviews;
             s4d.client.channels.cache.get('1037435739924861038').send({
-                content: interaction.options.getUser('helper'),
+                content: `<@${interaction.options.getUser('helper').id}>`,
                 embeds: [{
-                    color: ('#33ccff'),
-                    title: ('You were reviewed!'),
-                    description: ([interaction.member, ' has reviewed you as an Helper!', '\n', '\n', '**Review given:** :star: ', rating, '\n', '**Comment:** ', interaction.options.getString('comment'), '\n', '\n', '**Over-all rating:** :star: ', Math.round(ratingoverall), '\n', '**Total reviews:** ', total_reviews].join('')),
+                    color: '#33ccff',
+                    title: 'You were reviewed!',
+                    description: `${interaction.member} has reviewed you as an Helper!
+
+**Review given:** :star: ${rating}
+**Comment:** ${interaction.options.getString('comment')}
+
+**Over-all rating:** :star: ${Math.round(ratingoverall)}
+**Total reviews:** ${total_reviews}`
                 }]
             });
 
@@ -564,219 +556,213 @@ Aliasses: \`ban, b\``
             */
             await interaction.reply({
                 embeds: [{
-                    color: ('#33ccff'),
-                    title: ('Reviewing ' + interaction.options.getUser('helper').username),
-                    description: ('✅ Your review has been sent. Thank you very much!'),
+                    color: '#33ccff',
+                    title: 'Reviewing ' + (interaction.options.getUser('helper').displayName ?? interaction.options.getUser('helper').username),
+                    description: '✅ Your review has been sent. Thank you very much!'
                 }],
-                ephemeral: false,
-                components: []
+                ephemeral: false
             });
         }
         if (interaction.commandName == 'profile') {
             if (interaction.options.getUser('user') == null) {
-
                 /*
                 Rewards Code
                 */
-                // rewards check
-                if (!rewards.has((('tier-' + ((interaction.member).id))))) {
+                let user_tier = 'None';
+                let user_rpoints = 0;
+                if (!rewards.has('tier-' + interaction.user.id)) {
                     user_tier = 'None';
                     user_rpoints = 0;
-                } else if (rewards.get((('tier-' + ((interaction.member).id)))) == 5) {
+                } else if (rewards.get('tier-' + interaction.user.id) == 5) {
                     user_tier = '5 [VIP]';
-                    user_rpoints = rewards.get((('points-' + ((interaction.member).id))));
+                    user_rpoints = rewards.get('points-' + interaction.user.id);
                 } else {
-                    user_tier = rewards.get((('tier-' + ((interaction.member).id))));
-                    user_rpoints = rewards.get((('points-' + ((interaction.member).id))));
+                    user_tier = rewards.get('tier-' + interaction.user.id);
+                    user_rpoints = rewards.get('points-' + interaction.user.id);
                 }
 
                 /*
                 Badges Code
                 */
-                if (profiles.get((('badges-' + ((interaction.member).id)))) != 'none' && !(profiles.get((('badges-' + ((interaction.member).id)))) == null)) {
-                    badges = profiles.get((('badges-' + ((interaction.member).id))));
-                } else {
+                let badges = '';
+                let vhelper = '';
+                if (!profiles.has('badges-' + interaction.user.id)) {
                     badges = '';
+                } else {
+                    badges = profiles.get('badges-' + interaction.user.id);
                 }
                 // vip
-                if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1167912910568296520')).id)) {
-                    badges = (badges) + '<:VIP:1168253487252000808> **VIP** ';
+                if (interaction.member._roles.includes('1167912910568296520')) {
+                    badges += '<:VIP:1168253487252000808> **VIP** ';
                 }
                 // og
-                if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1025976326542348359')).id)) {
-                    badges = (badges) + '<:minecraftHeart:887700546687995964> **OG** ';
+                if (interaction.member._roles.includes('1025976326542348359')) {
+                    badges += '<:minecraftHeart:887700546687995964> **OG** ';
                 }
                 // Flow Premium
-                if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1155933625276190770')).id)) {
-                    badges = (badges) + '<:Flow_Premium:1168253434693169203> **Flow Premium** ';
+                if (interaction.member._roles.includes('1155933625276190770')) {
+                    badges += '<:Flow_Premium:1168253434693169203> **Flow Premium** ';
                 }
                 // Flow Basic
-                if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1080800593867706399')).id)) {
-                    badges = (badges) + '<:Flow_Basic:1168253367143899216> **Flow Basic** ';
+                if (interaction.member._roles.includes('1080800593867706399')) {
+                    badges += '<:Flow_Basic:1168253367143899216> **Flow Basic** ';
                 }
                 // verified helper
-                if ((interaction.member)._roles.includes((RolesServer.roles.cache.get('1168266159351676978')).id)) {
-                    badges = (badges) + '<:verified_server_owner:890546554073657355> *Verified Helper* ';
+                if (interaction.member._roles.includes('1168266159351676978')) {
+                    badges += '<:verified_server_owner:890546554073657355> *Verified Helper* ';
                     vhelper = '<:verified_server_owner:890546554073657355> **Verified Helper!**';
                 } else {
-                    vhelper = '**Helper Statistics**';
+                    vhelper = '';
                 }
-                if (true) {
-                    bio = 'None Set';
-                }
+                /*
+                Reviews
+                */
+                let total_reviews = reviews.get('reviews-' + interaction.user.id);
+                let reviews_rating = reviews.get('rating-' + interaction.user.id);
+                let ratingoverall = reviews_rating / total_reviews;
+                // Send
                 await interaction.reply({
                     embeds: [{
-                        color: (colourRandom()),
-                        title: ((textToTitleCase((s4d.client.users.cache.get((((interaction.member).id)))).username)) + '\'s Profile'),
-                        description: ([badges, '\n', '\n', ':heart_decoration: **About me:** ', '\n', bio].join('')),
+                        color: colourRandom(),
+                        title: (interaction.member.displayName ?? interaction.member.username) + "'s Profile",
+                        description: `${badges}
+
+:heart_decoration: **About me:**
+None Set`,
                         thumbnail: {
-                            url: ((interaction.member).displayAvatarURL({
-                                format: "png"
-                            }))
+                            url: interaction.member.displayAvatarURL({
+                                format: "png",
+                            })
                         },
                         fields: [
                             {
-                                name: 'Rewards & Economy',
-                                value: (['**Rewards:**', '\n', '\n', ':gem: **Tier:** ', user_tier, '\n', ':blue_square: **Points:** ', user_rpoints, '\n', '\n', '**Economy:**', '\n', '<:money:1043160500021760071> **Wallet:** ', 'Unavailable', '\n', '<:creditcard:1043160501292642314> **Bank:** ', 'Unavailable', '\n', '<:Info:1081346731041624125>  **Total:** ', 'Unavailable'].join('')),
-                                inline: true,
+                                name: 'Rewards:',
+                                value: `:gem: Tier: ${user_tier}
+:blue_square: Points: ${user_rpoints}
+
+**Economy:**
+<:Info:1081346731041624125> Total: Unavailable
+<:money:1043160500021760071> Wallet: Unavailable
+<:creditcard:1043160501292642314> Bank: Unavailable`,
+                                inline: true
                             },
                             {
                                 name: 'Helper',
-                                value: ([vhelper, '\n', '\n', '**Rating:** ', '5 <:thumbsUpS4D:887700059737710613>', '\n', '**Ratings:** ', '2 (placeholder)', '\n', '**Reviewed:** ', '0'].join('')),
-                                inline: true,
+                                value: `${vhelper}
+
+Rating: ${ratingoverall} :star:
+Over-all rating: ${reviews_rating}
+Reviews: ${total_reviews}`,
+                                inline: true
                             }
                         ]
                     }],
-                    ephemeral: false,
-                    components: []
+                    ephemeral: false
                 });
             } else {
                 await interaction.reply({
-                    content: 'Viewing others\' profiles is in beta.',
-                    ephemeral: true,
-                    components: []
+                    content: "Viewing others' profiles is in beta.",
+                    ephemeral: true
                 });
             }
         }
-        if ((interaction.commandName) == 'flow') {
+        if (interaction.commandName == 'flow') {
             await interaction.reply({
                 embeds: [{
-                    color: ('#33ccff'),
-                    title: ('S4D Flow'),
-                    description: (['Choose the Flow Plan that best fits your needs. Starting at 500 Economy Credits per month or 5000 Credits per year.', '\n', `Every Flow plan includes:
-        * Exclusive role with color
-        * Cool perks
-        * Access to a special chat`].join('')),
+                    color: '#33ccff',
+                    title: 'S4D Flow',
+                    description: `Choose the Flow Plan that best fits your needs. Starting at 500 Economy Credits per month or 5000 Credits per year.
+Every Flow plan includes:
+* Exclusive role with color
+* Cool perks
+* Access to a special chat`,
                     fields: [
                         {
                             name: '<:Flow_Basic:1168253367143899216> Flow Basic',
                             value: '',
-                            inline: true,
+                            inline: true
                         },
                         {
                             name: '<:Flow_Premium:1168253434693169203> Flow Plus',
                             value: '',
-                            inline: true,
+                            inline: true
                         },
                         {
                             name: '<a:FlowPremium:1169338764603179088> Flow Premium',
                             value: '',
-                            inline: true,
+                            inline: true
                         }
                     ]
                 }],
-                ephemeral: true,
-                components: []
+                ephemeral: true
             });
         }
-        if (interaction.commandName == 'test') {
-            flow.set('subscribers', []);
-            await interaction.reply({
-                content: 'ok',
-                ephemeral: true,
-                components: []
-            });
+    });
+
+    synchronizeSlashCommands(s4d.client, [
+        {
+            name: 'review',
+            description: 'Review an helper!',
+            options: [
+                {
+                    type: 6,
+                    name: 'helper',
+                    required: true,
+                    description: 'The person that helped you'
+                },
+                {
+                    type: 4,
+                    name: 'rating',
+                    required: true,
+                    description: 'Give a rating of 1-5'
+                },
+                {
+                    type: 3,
+                    name: 'comment',
+                    required: true,
+                    description: 'A comment to attach'
+                }
+            ]
+        },
+        {
+            name: 'profile',
+            description: 'View an user profile.',
+            options: [
+                {
+                    type: 6,
+                    name: 'user',
+                    required: false,
+                    description: 'Mention a user to view their profile'
+                }
+            ]
+        },
+        {
+            name: 'flow',
+            description: 'View Flow plans.'
         }
-
-    });
-
-    synchronizeSlashCommands(s4d.client, [{
-        name: 'review',
-        description: 'Review an helper!',
-        options: [{
-            type: 6,
-            name: 'helper',
-            required: true,
-            description: 'Name the helper here.',
-            choices: [
-
-            ]
-        }, {
-            type: 4,
-            name: 'rating',
-            required: true,
-            description: 'Give a rating of 1-5',
-            choices: [
-
-            ]
-        }, {
-            type: 3,
-            name: 'comment',
-            required: true,
-            description: 'Give a rating of 1-5',
-            choices: [
-
-            ]
-        }, ]
-    }, {
-        name: 'profile',
-        description: 'View an user profile.',
-        options: [{
-            type: 6,
-            name: 'user',
-            required: false,
-            description: 'Mention an user here to view their profile',
-            choices: [
-
-            ]
-        }, ]
-    }, {
-        name: 'flow',
-        description: 'View Flow plans.',
-        options: [
-
-        ]
-    }, {
-        name: 'test',
-        description: 'test.',
-        options: [
-
-        ]
-    }, ], {
-        debug: false,
-
-    });
+    ], { debug: false });
 
     s4d.client.on('threadCreate', async (s4dThread) => {
-        if ((((s4dThread).parent).id) == '1025976404187295765') {
-            await delay(Number(1) * 1000);
-            (s4dThread).send({
-                content: ('[BETA]'),
+        if (s4dThread.parent.id == '1025976404187295765') {
+            await delay(1000);
+            s4dThread.send({
+                content: '[BETA]',
                 embeds: [{
-                    color: ('#ff6600'),
-                    title: ('Welcome to support, We\'re here to help!'),
-                    description: (['Hello! Welcome to S4D Wold Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.', '\n', '|| WIP, will not work! If your case is solved, please send **/solved** Thank you!||', '\n', 'Good luck with your project! - S4DW Team'].join('')),
+                    color: '#ff6600',
+                    title: 'Welcome to support, We\'re here to help!',
+                    description: `Hello! Welcome to S4D Wold Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
+|| If your case is solved, please send **/solved** Thank you! (WIP)||
+Good luck with your project! - S4DW Staff`
                 }]
             });
         }
-
     });
 
     s4d.client.on('messageCreate', async (s4dmessage) => {
         if (s4dmessage.author.bot) {
             return;
         }
-        argument = (s4dmessage.content).split(' ');
+        argument = s4dmessage.content.split(' ');
         command = argument.shift();
         user = argument.shift();
         rating = argument.shift();
@@ -785,186 +771,171 @@ Aliasses: \`ban, b\``
         /*
         counting channel
         */
-        if (((s4dmessage.channel).id) == '1068486368596082688') {
-            if (((s4dmessage.content) || '').startsWith('!' || '')) {
+        if (s4dmessage.channel.id == '1068486368596082688') {
+            if ((s4dmessage.content ?? '').startsWith('!')) {
                 return
             }
-            if ((Number((s4dmessage.content))) == count.get(('count')) + 1) {
-                if (count.get(('previous_counter')) == ((s4dmessage.member).id)) {
-                    s4dmessage.reply({
-                        content: ('Please let somebody else count the next number!')
-                    }).then(async (s4dfrost_real_reply) => {
-                        s4dmessage.react('❌');
-                        await delay(Number(5) * 1000);
-                        s4dfrost_real_reply.delete();
-                        s4dmessage.delete();
-
-                    });
+            if (s4dmessage.content == count.get('count') + 1) {
+                if (count.get('previous_counter') == s4dmessage.author.id) {
+                    s4dmessage.reply('Please let somebody else count the next number!')
+                        .then(async(s4dfrost_real_reply) => {
+                            s4dmessage.react('❌');
+                            await delay(5 * 1000);
+                            s4dfrost_real_reply.delete();
+                            s4dmessage.delete();
+                        });
                 } else {
-                    count.add(('count'), parseInt(1));
-                    count.set(('previous_counter'), ((s4dmessage.member).id));
+                    count.add('count', 1);
+                    count.set('previous_counter', s4dmessage.author.id);
                     s4dmessage.react('✅');
                     try {
-                        if (count.get(('count')) == count.get(('goal'))) {
+                        if (count.get('count') == count.get('goal')) {
                             s4dmessage.channel.send({
                                 embeds: [{
-                                    color: ('#ffffff'),
-                                    title: ('🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉'),
-                                    description: (['We hit our goal of `', count.get(('goal')), '`! :tada:', '\n', 'New goal: `', count.get(('goal')) + 1000, '`'].join('')),
+                                    color: '#ffffff',
+                                    title: '🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉',
+                                    description: `We hit our goal of \`${count.get('goal')}\`! :tada:
+New goal: \`${count.get('goal') + 1000}\``
                                 }]
-                            }).then(async (s4dreply) => {
-                                (s4dmessage).pin()
-                            });
-                            count.add(('goal'), parseInt(1000));
-                            eval((['s4d.client.channels.cache.get(\'1068486368596082688\').setTopic(\'', 'Goal: ', count.get(('goal')), ' | Count here with fellow members! one count per message and wait for someone else to count before sending another message.\')'].join('')));
+                            })
+                                .then(() => {
+                                    s4dmessage.pin()
+                                });
+                            count.add('goal', 1000);
+                            s4d.client.channels.cache.get('1068486368596082688').setTopic(`Goal: ${count.get('goal')} | Count here with fellow members! one count per message and wait for someone else to count before sending another message.`);
                         }
-
                     } catch (err) {
                         s4dmessage.react('⚠');
-                        console.log((err));
-
+                        console.log(err);
                     }
                 }
             } else {
-                s4dmessage.reply({
-                    content: (('Please stick to the count, next number is ' + (count.get(('count')) + 1)))
-                }).then(async (s4dfrost_real_reply) => {
-                    s4dmessage.react('❌');
-                    await delay(5 * 1000);
-                    s4dfrost_real_reply.delete();
-                    s4dmessage.delete();
-
-                });
+                s4dmessage.react('❌');
+                s4dmessage.reply(`Please stick to the count, next number is ${count.get('count')+1}`)
+                    .then(async(s4dfrost_real_reply) => {
+                        await delay(5 * 1000);
+                        s4dfrost_real_reply.delete();
+                        s4dmessage.delete();
+                    });
             }
-            return
+            return;
         }
         if (command == 's4d!review') {
             s4dmessage.channel.send({
                 embeds: [{
-                    color: ('#ff9900'),
-                    title: ('Reviewing has moved...'),
-                    description: ('Reviewing has moved to slash commands!'),
+                    color: '#ff9900',
+                    title: 'Reviewing has moved...',
+                    description: 'Reviewing has moved to slash commands!',
                     thumbnail: {
-                        url: ('https://cdn.discordapp.com/emojis/901891914629009448.webp?size=48&name=CS_Slashcmd&quality=lossless')
-                    },
+                        url: 'https://cdn.discordapp.com/emojis/901891914629009448.webp?size=48&name=CS_Slashcmd&quality=lossless'
+                    }
                 }]
             });
         }
         if (command == 'Flow:demoBasic') {
-            (s4dmessage.channel).send({
+            s4dmessage.channel.send({
                 embeds: [{
-                    color: ('#33ccff'),
-                    title: ('A wild Gift appears!'),
-                    description: (`### S4D Flow Basic (1 Month)
-        Get sweet, sweet chat and server perks!`),
+                    color: '#33ccff',
+                    title: 'A wild Gift appears!',
+                    description: `### S4D Flow Basic (1 Month)
+Get sweet, sweet chat and server perks!`,
                     thumbnail: {
-                        url: ('https://cdn.discordapp.com/emojis/1168253367143899216.webp?size=96&quality=lossless')
-                    },
+                        url: 'https://cdn.discordapp.com/emojis/1168253367143899216.webp?size=96&quality=lossless'
+                    }
                 }],
-                components: [(new MessageActionRow()
-                    .addComponents(new MessageButton()
-                        .setCustomId('claimbasic')
-                        .setLabel('Claim')
-                        .setEmoji('')
-                        .setDisabled(false)
-                        .setStyle(('PRIMARY')),
-                    ))]
+                components: [
+                    new MessageActionRow()
+                        .addComponents(new MessageButton()
+                            .setCustomId('claimbasic')
+                            .setLabel('Claim')
+                            .setStyle('PRIMARY'))
+                ]
             })
         }
         if (command == 'Flow:demoPlus') {
-            (s4dmessage.channel).send({
+            s4dmessage.channel.send({
                 embeds: [{
-                    color: ('#9999ff'),
-                    title: ('A wild Gift appears!'),
-                    description: (`### S4D Flow Plus (1 Month)
-Get sweet premium chat and server perks!`),
+                    color: '#9999ff',
+                    title: 'A wild Gift appears!',
+                    description: `### S4D Flow Plus (1 Month)
+Get sweet premium chat and server perks!`,
                     thumbnail: {
-                        url: ('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
-                    },
+                        url: 'https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless'
+                    }
                 }],
-                components: [(new MessageActionRow()
-                    .addComponents(new MessageButton()
-                        .setCustomId('claimplus')
-                        .setLabel('Claim')
-                        .setEmoji('')
-                        .setDisabled(false)
-                        .setStyle(('PRIMARY')),
-                    ))]
+                components: [
+                    new MessageActionRow()
+                        .addComponents(new MessageButton()
+                            .setCustomId('claimplus')
+                            .setLabel('Claim')
+                            .setStyle('PRIMARY'))
+                ]
             })
         }
         if (command == 'Flow:demoPremium') {
-            (s4dmessage.channel).send({
+            s4dmessage.channel.send({
                 embeds: [{
-                    color: ('#6600cc'),
-                    title: ('A wild Gift appears!'),
-                    description: (`### S4D Flow Premium (1 Month)
-Get sweet perks and Premium Services!`),
+                    color: '#6600cc',
+                    title: 'A wild Gift appears!',
+                    description: `### S4D Flow Premium (1 Month)
+Get sweet perks and Premium Services!`,
                     thumbnail: {
-                        url: ('https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless')
-                    },
+                        url: 'https://cdn.discordapp.com/emojis/1168253434693169203.webp?size=96&quality=lossless'
+                    }
                 }],
-                components: [(new MessageActionRow()
-                    .addComponents(new MessageButton()
-                        .setCustomId('claimpremium')
-                        .setLabel('Claim')
-                        .setEmoji('')
-                        .setDisabled(false)
-                        .setStyle(('PRIMARY')),
-                    ))]
+                components: [
+                    new MessageActionRow()
+                        .addComponents(new MessageButton()
+                            .setCustomId('claimpremium')
+                            .setLabel('Claim')
+                            .setStyle('PRIMARY'))
+                ]
             })
         }
-
     });
 
     s4d.Inviter.on('UserInvited', async function(member, uses, inviter, invite) {
         s4d.client.channels.cache.get('1025976414475915356').send({
             embeds: [{
-                color: ('#33ff33'),
-                title: ('New join!'),
-                description: ([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
+                color: '#33ff33',
+                title: 'New join!',
+                description: `${(member.displayName ?? member.username)} was invited by ${(inviter.displayName ?? inviter.username)}. This member has now ${uses} invite(s).`
             }]
         });
-
     });
 
     s4d.Inviter.on('UserLeave', async function(member, uses, inviter, invite) {
         s4d.client.channels.cache.get('1025976414475915356').send({
             embeds: [{
-                color: ('#ff0000'),
-                title: ('User leave'),
-                description: ([(member).username, ' was invited by ', (inviter).username, '. This member has now ', uses, ' invite(s).'].join('')),
+                color: '#ff0000',
+                title: 'User leave',
+                description: `${(member.displayName ?? member.username)} was invited by ${(inviter.displayName ?? inviter.username)}. This member has now ${uses} invite(s).`
             }]
         });
-
     });
 
     s4d.client.on('messageCreate', async (s4dmessage) => {
         if (s4dmessage.author.bot) {
             return;
         }
-        argument = (s4dmessage.content).split(' ');
+        argument = s4dmessage.content.split(' ');
         command = argument.shift();
         prompt2 = argument.join(' ');
         if (command == 's4d!imagine') {
-            if (commands.get(('disabled-imagine')) == 'false') {
+            if (commands.get('disabled-imagine') == 'false') {
                 s4dmessage.channel.send({
                     embeds: [{
-                        color: ('#ff6600'),
-                        title: ('Your image is being generated'),
-                        description: (['Prompt:', prompt2, '\n', 'Your image should take about 10 sec.'].join('')),
+                        color: '#ff6600',
+                        title: 'Your image is being generated',
+                        description: `Prompt: ${prompt2}
+Your image should take about 10 sec.`
                     }]
-                }).then(async (s4dreply) => {
-                    S4D_APP_PKG_axios({
-                            method: "get",
-                            url: ('https://api.fsh.plus/imagine?text=' + ((prompt2).replaceAll(' ', ('%20')))),
-
-                            headers: {
-                                'content-type': 'application/json',
-
-                            },
-
-                        })
-                        .then(async (response) => {
+                })
+                    .then(async(s4dreply) => {
+                        let img;
+                        try {
+                            img = await fetch('https://api.fsh.plus/imagine?text=' + encodeURIComponent(prompt2));
+                            img = await img.json();
                             s4dreply.edit({
                                 embeds: [{
                                     color: ('#ff6600'),
@@ -975,39 +946,34 @@ Get sweet perks and Premium Services!`),
                                     },
                                 }]
                             });
-
-                        })
-                        .catch(async (err) => {
-                            sentryhandler = sentry_handler('imagine', Math.floor(new Date().getTime() / 1000), err);
-                            s4dmessage.reply({
-                                content: (('There was an error. please DM HitByaThunder and give him this code: ' + (sentryhandler)))
-                            });
-
-                        });
-                    commands.add(('generations'), (1));
-
-                });
+                            commands.add('generations', 1);
+                        } catch(err) {
+                            let sentryhandler = sentry_handler('imagine', Math.floor(new Date().getTime() / 1000), err);
+                            s4dmessage.reply('There was an error. please DM HitByaThunder and give him this code: ' + sentryhandler);
+                        }
+                    });
             } else {
                 s4dmessage.reply({
                     embeds: [{
-                        color: ('#ff6600'),
-                        title: ('Command disabled!'),
-                        description: ('⛔ This command has been disabled. Reason: ' + (commands.get(('disabled-r-imagine')))),
+                        color: '#ff6600',
+                        title: 'Command disabled!',
+                        description: '⛔ This command has been disabled. Reason: ' + commands.get('disabled-r-imagine')
                     }]
                 });
             }
         }
-
     });
 
-    const sentry = new Database('./sentry-errors.json')
-    const flow = new Database('./flow_sub.json')
-    s4d.client.on('messageCreate', async (s4dmessage) => {
+    const sentry = new Database('./sentry-errors.json');
+    const flow = new Database('./flow_sub.json');
+
+    s4d.client.on('messageCreate', async(s4dmessage) => {
         if (s4dmessage.content == 's4d!flow' || s4dmessage.content == 's4d!s4dflow') {
             s4dmessage.reply({
                 content: ('Sale of S4D Flow is currently paused. Please check back later!')
             });
         }
     });
+
     return s4d;
 })();
