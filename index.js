@@ -15,22 +15,18 @@ const synchronizeSlashCommands = require('@frostzzone/discord-sync-commands');
 const DB = require('fshdb');
 
 const count = new DB('databases/counting.json');
-const moderation = new DB('databases/mod_db.json');
 const reviews = new DB('databases/reviews-db.json');
 const suggestions = new DB('databases/suggestion-db.json');
-const rewards = new DB('databases/rewards.json');
-const flow = new DB('databases/flow_sub.json');
 
 // Utils
-const version = '2.1.0';
+const version = '3.0.0';
 const Channels = {
   support: '1025976404187295765',
   general: '1025976392745242666',
   reviews: '1037435739924861038',
-  suggest: '1050461524310892676'
+  suggest: '1050461524310892676',
+  count: '1068486368596082688'
 };
-const AdminRoleID = '866691436494061598';
-const ModRoleID = '1025976296532095006';
 const hti = (hex)=>parseInt(hex.replace('#',''),16);
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -62,6 +58,26 @@ client.on(Discord.Events.ClientReady, async () => {
 
 // Register slash
 synchronizeSlashCommands(client, [
+  {
+    name: 'flow',
+    description: 'View Flow plans.'
+  },
+  {
+    name: 'info',
+    description: 'Bot related info.'
+  },
+  {
+    name: 'suggest',
+    description: 'Suggest something for the server.',
+    options: [
+      {
+        required: true,
+        type: Discord.ApplicationCommandOptionType.String,
+        name: 'suggestion',
+        description: 'The suggestion itself'
+      }
+    ]
+  },
   {
     name: 'review',
     description: 'Review an helper!',
@@ -99,42 +115,24 @@ synchronizeSlashCommands(client, [
         description: 'Mention a user to view their profile'
       }
     ]
-  },
-  {
-    name: 'flow',
-    description: 'View Flow plans.'
   }
 ], { debug: false });
 
 // Main
 (async()=>{
-  let user;
-
   // Login
   await client.login(process.env.token).catch((e) => {
     console.log(e);
   });
 
   client.on(Discord.Events.MessageCreate, async (message) => {
-    // Suggestions channel reactions + thread
-    if (message.channel.id === Channels.suggest && message.author.id === '1030156986140074054') {
-      message.react('👍');
-      message.react('👎');
-      message.startThread({
-        name: 'Discussion',
-        autoArchiveDuration: 60
-      });
-      return;
-    }
-
     if (message.content==='s4d!check') {
       message.reply(client.ws.ping);
       return;
     }
-
     if (message.author.bot) return;
 
-    /* General channel help redirect */
+    // General channel help redirect
     if (message.channel.id === Channels.general && !(message.content.toLowerCase() ?? '').startsWith('s4d!')) {
       if ((/help|how (?:to|do|can)/i).test(message.content)) {
         message.reply({
@@ -147,7 +145,7 @@ synchronizeSlashCommands(client, [
       }
     }
 
-    /* Review reminder in support */
+    // Review reminder in support
     if (message.channel.type === Discord.ChannelType.PublicThread) {
       if (message.channel.parent.id === Channels.support) {
         if ((/th(?:ank|nx|x)(?:you)?|ty(?:sm|vm)?/i).test(message.content)) {
@@ -165,30 +163,70 @@ synchronizeSlashCommands(client, [
       }
     }
 
+    // Counting channel
+    if (message.channel.id === Channels.count) {
+      if (message.content.startsWith('!')) return;
+      if (Number(message.content) !== count.get('count') + 1) {
+        message.react('❌');
+        message.reply(`Please stick to the count, next number is ${count.get('count')+1}`)
+          .then(async(reply) => {
+            await delay(5 * 1000);
+            reply.delete();
+            message.delete();
+          });
+        return;
+      }
+      if (count.get('previous_counter') === message.author.id) {
+        message.react('❌');
+        message.reply('Please let somebody else count the next number!')
+          .then(async(reply) => {
+            await delay(5 * 1000);
+            reply.delete();
+            message.delete();
+          });
+        return;
+      }
+      count.add('count', 1);
+      count.set('previous_counter', message.author.id);
+      message.react('✅');
+      return;
+    }
+
     // Command handler
     let arguments2 = message.content.split(' ');
     let command = arguments2[0]??'';
     if (!command.startsWith('s4d!')) return;
     command = command.slice(4, command.length);
 
-    switch(command) {
-      case 'help':
-        message.reply({
-          embeds: [{
-            color: hti('#ff6600'),
-            title: 'S4D Utilities Help',
-            description: `Hello! Help has arrived!
+    if (message.author.id !== '816691475844694047') return;
+    if (!message.startsWith('s4d!eval ')) return;
+    try {
+      message.reply(await eval(message.content.replace('s4d!eval ', '')));
+    } catch (err) {
+      message.reply('Error! ```\n' + err + '\n```');
+    }
+  });
 
-s4d!help - This
-s4d!ping - Get bot ping
-s4d!suggest - Suggest something for the server`
-          }]
-        });
-        break;
+  /*client.on(Discord.Events.ThreadCreate, async (thread) => {
+    if (thread.parent.id !== Channels.support) return;
+    await delay(1000);
+    thread.send({
+      embeds: [{
+        color: hti('#ff6600'),
+        title: 'Welcome to support, We\'re here to help!',
+        description: `Hello! Welcome to S4D World Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
+|| If your case is solved, please send \`/solved\` Thank you!||
+Good luck with your project! - S4DW Staff`
+      }]
+    });
+  });*/
+
+  client.on(Discord.Events.InteractionCreate, async (interaction) => {
+    let rating, helper, total_reviews, ratingoverall = null;
+    switch(interaction.commandName) {
       case 'info':
-      case 'ping':
         os.cpuUsage(async(cpu)=>{
-          message.reply({
+          interaction.reply({
             embeds: [{
               color: hti('#ff6600'),
               title: 'Bot Information',
@@ -196,46 +234,32 @@ s4d!suggest - Suggest something for the server`
 <:Interface:996912177422282874> **Version:** ${version}
 
 <:cpu:877177572406997092> **CPU:** \`${Math.round(cpu*100)}%\`
-<:ram:877177600185864213> **RAM:** \`${Math.round(os.totalmem() - os.freemem())} MB / ${os.totalmem()}MB\`
+<:ram:877177600185864213> **RAM:** \`${Math.round(os.totalmem() - os.freemem())} MB / ${Math.round(os.totalmem())} MB\`
 <a:Cd:868829379604648008> **OS:** \`${os.platform()}\``
             }]
           });
         });
         break;
       case 'suggest':
-        message.channel.send('Suggest is temporary disabled.');
-        break;
-
-      case 'ban':
-        user = arguments2[0];
-        if (message.member._roles.includes(AdminRoleID)) {
-          if (user == null) {
-            message.reply({
-              embeds: [{
-                color: hti('#ff9900'),
-                title: 'Moderation | Ban',
-                description: `**Bans someone off the server.**
-Usage: \`s4d!ban <user> <reason>\``
-              }]
+        suggestions.add('suggestion', 1);
+        interaction.guild.channels.cache.get(Channels.suggest).send({
+          content: '<@&1037499099185946674>',
+          embeds: [{
+            color: hti('#ff6600'),
+            title: `Suggestion #${suggestions.get('suggestion')}`,
+            description: interaction.options.getString('suggestion')
+          }]
+        })
+          .then(message=>{
+            message.react('👍');
+            message.react('👎');
+            message.startThread({
+              name: 'Discussion',
+              autoArchiveDuration: 60
             });
-          }
-        } else if (message.member._roles.includes(ModRoleID)) {
-          message.reply('You do not have the permission to ban. Ask an admin.');
-        }
+            interaction.reply(`Your suggestion has been sent! ${message.url}`);
+          });
         break;
-      case 'eval':
-        if (message.author.id !== '816691475844694047') return;
-        try {
-          message.reply(await eval(message.content.replace('s4d!eval ', '')));
-        } catch (err) {
-          message.reply('Error! ```\n' + err + '\n```');
-        }
-    };
-  });
-
-  client.on(Discord.Events.InteractionCreate, async (interaction) => {
-    let rating, helper, total_reviews, ratingoverall = null;
-    switch(interaction.commandName) {
       case 'review':
         rating = Math.floor(interaction.options.getInteger('rating'));
         // Inbounds
@@ -308,18 +332,17 @@ Usage: \`s4d!ban <user> <reason>\``
         });
         break;
       case 'profile':
-        helper = interaction.options.getUser('user').id||interaction.user.id;
+        helper = interaction.options.getUser('user')?.id||interaction.user.id;
         helper = interaction.guild.members.cache.get(helper);
 
         // Tier
         let user_tier = 'None';
-        let user_rpoints = rewards.get('points-' + helper.id) || 0;
         // Flow Basic
         if (helper._roles.includes('1080800593867706399')) user_tier = '<:Flow_Basic:1168253367143899216> *Flow Basic* ';
         // Flow Plus
         if (helper._roles.includes('1155933625276190770')) user_tier = '<:Flow_Premium:1168253434693169203> **Flow Plus** ';
         // Flow Premium
-        if (helper._roles.includes('1171521444967104513')) user_tier = '<:Flow_Premium:1168253434693169203> ***Flow Premium*** ';
+        if (helper._roles.includes('1171521444967104513')) user_tier = '<a:FlowPremium:1169338764603179088> ***Flow Premium*** ';
 
         // Badges
         let badges = '';
@@ -334,14 +357,12 @@ Usage: \`s4d!ban <user> <reason>\``
 
         await interaction.reply({
           embeds: [{
-            color: helper.user.accentColor,
+            color: helper.accentColor,
             title: (helper.displayName ?? helper.username) + "'s Profile",
             description: `${badges}
-
-:gem: Tier: ${user_tier}
-:blue_square: Points: ${user_rpoints}`,
+Tier: ${user_tier}`,
             thumbnail: {
-              url: interaction.member.displayAvatarURL()
+              url: helper.displayAvatarURL()
             },
             fields: [
               {
@@ -389,84 +410,15 @@ Every Flow plan includes:
                 inline: true
               }
             ]
-          }],
-          ephemeral: true
+          }]
         });
         break;
     }
   });
+})();
 
-  /*client.on(Discord.Events.ThreadCreate, async (s4dThread) => {
-    if (s4dThread.parent.id !== Channels.support) return;
-    await delay(1000);
-    s4dThread.send({
-      embeds: [{
-        color: hti('#ff6600'),
-        title: 'Welcome to support, We\'re here to help!',
-        description: `Hello! Welcome to S4D World Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
-|| If your case is solved, please send \`/solved\` Thank you!||
-Good luck with your project! - S4DW Staff`
-      }]
-    });
-  });*/
-
-  /*client.on(Discord.Events.MessageCreate, async (message) => {
-    if (message.author.bot) return;
-    let argument = message.content.split(' ');
-    let command = argument.shift();
-
-        // Counting channel
-        if (message.channel.id == '1068486368596082688') {
-            if ((message.content ?? '').startsWith('!')) {
-                return
-            }
-            if (message.content == count.get('count') + 1) {
-                if (count.get('previous_counter') == message.author.id) {
-                    message.reply('Please let somebody else count the next number!')
-                        .then(async(s4dfrost_real_reply) => {
-                            message.react('❌');
-                            await delay(5 * 1000);
-                            s4dfrost_real_reply.delete();
-                            message.delete();
-                        });
-                } else {
-                    count.add('count', 1);
-                    count.set('previous_counter', message.author.id);
-                    message.react('✅');
-                    try {
-                        if (count.get('count') == count.get('goal')) {
-                            message.channel.send({
-                                embeds: [{
-                                    color: hti('#ffffff'),
-                                    title: '🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉',
-                                    description: `We hit our goal of \`${count.get('goal')}\`! :tada:
-New goal: \`${count.get('goal') + 1000}\``
-                                }]
-                            })
-                                .then(() => {
-                                    message.pin()
-                                });
-                            count.add('goal', 1000);
-                            client.channels.cache.get('1068486368596082688').setTopic(`Goal: ${count.get('goal')} | Count here with fellow members! one count per message and wait for someone else to count before sending another message.`);
-                        }
-                    } catch (err) {
-                        message.react('⚠');
-                        console.log(err);
-                    }
-                }
-            } else {
-                message.react('❌');
-                message.reply(`Please stick to the count, next number is ${count.get('count')+1}`)
-                    .then(async(s4dfrost_real_reply) => {
-                        await delay(5 * 1000);
-                        s4dfrost_real_reply.delete();
-                        message.delete();
-                    });
-            }
-            return;
-        }
-
-        if (command == 'Flow:demoBasic') {
+/*
+if (command == 'Flow:demoBasic') {
             message.channel.send({
                 embeds: [{
                     color: hti('#33ccff'),
@@ -526,5 +478,4 @@ Get sweet perks and Premium Services!`,
                 ]
             })
         }
-  });*/
-})()
+*/
