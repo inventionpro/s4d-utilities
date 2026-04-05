@@ -31,6 +31,7 @@ const Channels = {
 };
 const AdminRoleID = '866691436494061598';
 const ModRoleID = '1025976296532095006';
+const hti = (hex)=>parseInt(hex.replace('#',''),16);
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Client
@@ -44,7 +45,7 @@ const client = new Discord.Client({
   ]
 });
 
-client.on('ready', async () => {
+client.on(Discord.Events.ClientReady, async () => {
   console.log(client.user.tag + ' is alive!');
 
   while (client && client.token) {
@@ -114,7 +115,7 @@ synchronizeSlashCommands(client, [
     console.log(e);
   });
 
-  client.on('messageCreate', async (message) => {
+  client.on(Discord.Events.MessageCreate, async (message) => {
     // Suggestions channel reactions + thread
     if (message.channel.id === Channels.suggest && message.author.id === '1030156986140074054') {
       message.react('👍');
@@ -138,7 +139,7 @@ synchronizeSlashCommands(client, [
       if ((/help|how (?:to|do|can)/i).test(message.content)) {
         message.reply({
           embeds: [{
-            color: '#ff9900',
+            color: hti('#ff9900'),
             description: `<:thwinkies:959150928785731634> Looking for S4D Help? Please create a post in <#${Channels.support}>!`
           }]
         });
@@ -152,7 +153,7 @@ synchronizeSlashCommands(client, [
         if ((/th(?:ank|nx|x)(?:you)?|ty(?:sm|vm)?/i).test(message.content)) {
           message.channel.send({
             embeds: [{
-              color: '#33ccff',
+              color: hti('#33ccff'),
               title: '⭐ Had a good experience?',
               description: `Please review the helper(s) that helped you. It would be greatly appreciated!
 
@@ -174,7 +175,7 @@ synchronizeSlashCommands(client, [
       case 'help':
         message.reply({
           embeds: [{
-            color: '#ff6600',
+            color: hti('#ff6600'),
             title: 'S4D Utilities Help',
             description: `Hello! Help has arrived!
 
@@ -189,7 +190,7 @@ s4d!suggest - Suggest something for the server`
         os.cpuUsage(async(cpu)=>{
           message.reply({
             embeds: [{
-              color: '#ff6600',
+              color: hti('#ff6600'),
               title: 'Bot Information',
               description: `<a:Online:1067900716296970310> **Ping:** \`${client.ws.ping}ms\`
 <:Interface:996912177422282874> **Version:** ${version}
@@ -211,7 +212,7 @@ s4d!suggest - Suggest something for the server`
           if (user == null) {
             message.reply({
               embeds: [{
-                color: '#ff9900',
+                color: hti('#ff9900'),
                 title: 'Moderation | Ban',
                 description: `**Bans someone off the server.**
 Usage: \`s4d!ban <user> <reason>\``
@@ -232,7 +233,7 @@ Usage: \`s4d!ban <user> <reason>\``
     };
   });
 
-  client.on('interactionCreate', async (interaction) => {
+  client.on(Discord.Events.InteractionCreate, async (interaction) => {
     let rating, helper, total_reviews, ratingoverall = null;
     switch(interaction.commandName) {
       case 'review':
@@ -241,7 +242,7 @@ Usage: \`s4d!ban <user> <reason>\``
         if (rating < 1 || rating > 5) {
           interaction.reply({
             embeds: [{
-              color: '#ff0000',
+              color: hti('#ff0000'),
               title: 'Review',
               description: '❌ **You need to give a rating between 1 and 5.**'
             }],
@@ -254,7 +255,7 @@ Usage: \`s4d!ban <user> <reason>\``
         if (helper === interaction.user) {
           interaction.reply({
             embeds: [{
-              color: '#ff0000',
+              color: hti('#ff0000'),
               title: 'Review',
               description: '❌ **You can\'t review yourself.**'
             }],
@@ -266,7 +267,7 @@ Usage: \`s4d!ban <user> <reason>\``
         if (helper.bot) {
           interaction.reply({
             embeds: [{
-              color: '#ff0000',
+              color: hti('#ff0000'),
               title: 'Review',
               description: '❌ **You can\'t review bots.**'
             }],
@@ -285,7 +286,7 @@ Usage: \`s4d!ban <user> <reason>\``
         client.channels.cache.get(Channels.reviews).send({
           content: `<@${helper.id}>`,
           embeds: [{
-            color: '#33ccff',
+            color: hti('#33ccff'),
             title: 'You were reviewed!',
             description: `${interaction.member} has reviewed you as an Helper!
 
@@ -300,7 +301,7 @@ Usage: \`s4d!ban <user> <reason>\``
         // Succes
         await interaction.reply({
           embeds: [{
-            color: '#33ccff',
+            color: hti('#33ccff'),
             title: 'Reviewing ' + (helper.displayName ?? helper.username),
             description: '✅ Your review has been sent. Thank you very much!'
           }]
@@ -364,7 +365,7 @@ Reviews: ${total_reviews}`,
       case 'flow':
         await interaction.reply({
           embeds: [{
-            color: '#33ccff',
+            color: hti('#33ccff'),
             title: 'S4D Flow',
             description: `Choose the Flow Plan that best fits your needs. Starting at 500 Economy Credits per month or 5000 Credits per year.
 Every Flow plan includes:
@@ -395,12 +396,12 @@ Every Flow plan includes:
     }
   });
 
-  /*client.on('threadCreate', async (s4dThread) => {
+  /*client.on(Discord.Events.ThreadCreate, async (s4dThread) => {
     if (s4dThread.parent.id !== Channels.support) return;
     await delay(1000);
     s4dThread.send({
       embeds: [{
-        color: '#ff6600',
+        color: hti('#ff6600'),
         title: 'Welcome to support, We\'re here to help!',
         description: `Hello! Welcome to S4D World Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
 || If your case is solved, please send \`/solved\` Thank you!||
@@ -409,7 +410,7 @@ Good luck with your project! - S4DW Staff`
     });
   });*/
 
-  /*client.on('messageCreate', async (message) => {
+  /*client.on(Discord.Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
     let argument = message.content.split(' ');
     let command = argument.shift();
@@ -436,7 +437,7 @@ Good luck with your project! - S4DW Staff`
                         if (count.get('count') == count.get('goal')) {
                             message.channel.send({
                                 embeds: [{
-                                    color: '#ffffff',
+                                    color: hti('#ffffff'),
                                     title: '🎉🎉🎉 GOAL REACHED!!! 🎉🎉🎉',
                                     description: `We hit our goal of \`${count.get('goal')}\`! :tada:
 New goal: \`${count.get('goal') + 1000}\``
@@ -468,7 +469,7 @@ New goal: \`${count.get('goal') + 1000}\``
         if (command == 'Flow:demoBasic') {
             message.channel.send({
                 embeds: [{
-                    color: '#33ccff',
+                    color: hti('#33ccff'),
                     title: 'A wild Gift appears!',
                     description: `### S4D Flow Basic (1 Month)
 Get sweet, sweet chat and server perks!`,
@@ -488,7 +489,7 @@ Get sweet, sweet chat and server perks!`,
         if (command == 'Flow:demoPlus') {
             message.channel.send({
                 embeds: [{
-                    color: '#9999ff',
+                    color: hti('#9999ff'),
                     title: 'A wild Gift appears!',
                     description: `### S4D Flow Plus (1 Month)
 Get sweet premium chat and server perks!`,
@@ -508,7 +509,7 @@ Get sweet premium chat and server perks!`,
         if (command == 'Flow:demoPremium') {
             message.channel.send({
                 embeds: [{
-                    color: '#6600cc',
+                    color: hti('#6600cc'),
                     title: 'A wild Gift appears!',
                     description: `### S4D Flow Premium (1 Month)
 Get sweet perks and Premium Services!`,
