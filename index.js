@@ -206,8 +206,10 @@ synchronizeSlashCommands(client, [
 
   client.on(Discord.Events.ThreadCreate, async (thread) => {
     if (thread.parent.id !== Channels.support) return;
+    if (thread.appliedTags.includes('1490723186218631350')) return;
     await delay(1000);
     thread.send({
+      content: '<@&1025976312160063569>',
       embeds: [{
         color: hti('#ff6600'),
         title: 'Welcome to support, We\'re here to help!',
