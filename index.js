@@ -48,7 +48,7 @@ client.on(Discord.Events.ClientReady, async () => {
     client.user.setPresence({
       status: 'online',
       activities: [{
-        name: `s4d!help | ${client.ws.ping}ms`,
+        name: `${client.ws.ping}ms`,
         type: Discord.ActivityType.Watching
       }]
     });
@@ -105,6 +105,10 @@ synchronizeSlashCommands(client, [
     ]
   },
   {
+    name: 'solved',
+    description: 'Marked issue as solved.'
+  },
+  {
     name: 'profile',
     description: 'View an user profile.',
     options: [
@@ -154,7 +158,6 @@ synchronizeSlashCommands(client, [
               color: hti('#33ccff'),
               title: '⭐ Had a good experience?',
               description: `Please review the helper(s) that helped you. It would be greatly appreciated!
-
 **Use:** \`/review <helper> <1-5> <comment>\``,
             }]
           });
@@ -192,14 +195,8 @@ synchronizeSlashCommands(client, [
       return;
     }
 
-    // Command handler
-    let arguments2 = message.content.split(' ');
-    let command = arguments2[0]??'';
-    if (!command.startsWith('s4d!')) return;
-    command = command.slice(4, command.length);
-
     if (message.author.id !== '816691475844694047') return;
-    if (!message.startsWith('s4d!eval ')) return;
+    if (!message.content.startsWith('s4d!eval ')) return;
     try {
       message.reply(await eval(message.content.replace('s4d!eval ', '')));
     } catch (err) {
@@ -207,19 +204,19 @@ synchronizeSlashCommands(client, [
     }
   });
 
-  /*client.on(Discord.Events.ThreadCreate, async (thread) => {
+  client.on(Discord.Events.ThreadCreate, async (thread) => {
     if (thread.parent.id !== Channels.support) return;
     await delay(1000);
     thread.send({
       embeds: [{
         color: hti('#ff6600'),
         title: 'Welcome to support, We\'re here to help!',
-        description: `Hello! Welcome to S4D World Support! While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
-|| If your case is solved, please send \`/solved\` Thank you!||
+        description: `While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
+Once your issue is solved, please use \`/solved\`.
 Good luck with your project! - S4DW Staff`
       }]
     });
-  });*/
+  });
 
   client.on(Discord.Events.InteractionCreate, async (interaction) => {
     let rating, helper, total_reviews, ratingoverall = null;
@@ -270,7 +267,7 @@ Good luck with your project! - S4DW Staff`
               title: 'Review',
               description: '❌ **You need to give a rating between 1 and 5.**'
             }],
-            ephemeral: true
+            flags: Discord.MessageFlags.Ephemeral
           });
           return;
         }
@@ -283,7 +280,7 @@ Good luck with your project! - S4DW Staff`
               title: 'Review',
               description: '❌ **You can\'t review yourself.**'
             }],
-            ephemeral: true
+            flags: Discord.MessageFlags.Ephemeral
           });
           return;
         }
@@ -295,7 +292,7 @@ Good luck with your project! - S4DW Staff`
               title: 'Review',
               description: '❌ **You can\'t review bots.**'
             }],
-            ephemeral: true
+            flags: Discord.MessageFlags.Ephemeral
           });
           return
         }
@@ -330,6 +327,26 @@ Good luck with your project! - S4DW Staff`
             description: '✅ Your review has been sent. Thank you very much!'
           }]
         });
+        break;
+      case 'solved':
+        if (interaction.channel.parentId !== Channels.support) {
+          interaction.reply({
+            content: 'Must be used in support',
+            flags: Discord.MessageFlags.Ephemeral
+          });
+          return;
+        }
+        if (interaction.user.id !== interaction.channel.ownerId) {
+          interaction.reply({
+            content: 'Only the owner of the thread can mark it as solved',
+            flags: Discord.MessageFlags.Ephemeral
+          });
+          return;
+        }
+        interaction.channel.setAppliedTags(interaction.channel.appliedTags.concat(['1029479205202825236']));
+        interaction.reply('Thread marked as solved! Remember to review your helper if you haven\'t already.');
+        await delay(10 * 1000);
+        interaction.channel.setArchived(true);
         break;
       case 'profile':
         helper = interaction.options.getUser('user')?.id||interaction.user.id;
@@ -379,8 +396,7 @@ Reviews: ${total_reviews}`,
                 inline: true
               }
             ]
-          }],
-          ephemeral: false
+          }]
         });
         break;
       case 'flow':
