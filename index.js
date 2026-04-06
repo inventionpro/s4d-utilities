@@ -152,7 +152,7 @@ synchronizeSlashCommands(client, [
     // Review reminder in support
     if (message.channel.type === Discord.ChannelType.PublicThread) {
       if (message.channel.parent.id === Channels.support) {
-        if ((/th(?:ank|nx|x)(?:you)?|ty(?:sm|vm)?/i).test(message.content)) {
+        if ((/th(?:ank|nx|x)(?:you)?|\bty(?:sm|vm)?/i).test(message.content)) {
           message.channel.send({
             embeds: [{
               color: hti('#33ccff'),
@@ -211,8 +211,8 @@ synchronizeSlashCommands(client, [
       embeds: [{
         color: hti('#ff6600'),
         title: 'Welcome to support, We\'re here to help!',
-        description: `While you wait for assistance, please explain your problem further and provide screenshots if necessary. This will help us solve your problem faster.
-Once your issue is solved, please use \`/solved\`.
+        description: `While you wait for assistance, please **explain your problem further** and **provide screenshots** if necessary. This will help us solve your problem faster.
+**Once your issue is solved**, please use \`/solved\`.
 Good luck with your project! - S4DW Staff`
       }]
     });
